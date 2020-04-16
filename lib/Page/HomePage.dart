@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.search),
                   // 如果有抽屉的话的就打开
                   onPressed: () {
-                    print("跳转搜索");
+                    Navigator.of(context).pushNamed("/SearchPage"); //执行跳转代码
                   },
                   // 显示描述信息
                   tooltip: "打开搜索",

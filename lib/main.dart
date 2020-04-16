@@ -1,8 +1,10 @@
 
+import 'package:dbys/Page/SearchPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'Page/ClassificationPage.dart';
 import 'Page/MainPage.dart';
 
 void main() => runApp(MyApp());
@@ -19,6 +21,7 @@ class MyApp extends StatelessWidget {
       home: BootAnimation(),
       routes: <String, WidgetBuilder>{
         '/MainPage': (BuildContext context) => new MainPage(),
+        '/SearchPage':(BuildContext context) => new SearchPage(),
       },
     );
   }

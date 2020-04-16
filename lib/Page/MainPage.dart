@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 
+import 'ClassificationPage.dart';
+
 
 class MainPage extends StatefulWidget {
   MainPage({Key key}) : super(key: key);
@@ -18,7 +20,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _controllerList = [new HomePage(),new TestPage()];
+    _controllerList = [new HomePage(),new ClassificationPage(),new TestPage()];
   }
   @override
   Widget build(BuildContext context) {

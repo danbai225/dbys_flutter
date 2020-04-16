@@ -19,26 +19,39 @@ class _YsImgState extends State<YsImg> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-    GestureDetector(
-          onTap: onClick,
-          child:Container(
-            height: 150,
-            child: ClipRRect(
-                child: CachedNetworkImage(fit: BoxFit.cover,imageUrl: widget.url,),
-                borderRadius: BorderRadius.circular(8)
-            ),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black12,
-                      offset: Offset(0.0, 5.0), //阴影xy轴偏移量
-                      blurRadius: 2.0, //阴影模糊程度
-                      spreadRadius: 1.0 //阴影扩散程度
-                  )
-                ])
-            ,
-          ) ,
+        GestureDetector(
+            onTap: onClick,
+            child:Column(
+              children: <Widget>[
+                Container(
+                  height: 142.5,
+                  width: 100,
+                  child: ClipRRect(
+                      child: CachedNetworkImage(fit: BoxFit.cover,imageUrl: widget.url,placeholder: (context, url) => Image.asset("assets/img/zw.png"),
+                          errorWidget: (context, url, error) => Image.asset("assets/img/zw.png")),
+                      borderRadius: BorderRadius.circular(8)
+                  ),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black12,
+                            offset: Offset(0.0, 5.0), //阴影xy轴偏移量
+                            blurRadius: 2.0, //阴影模糊程度
+                            spreadRadius: 1.0 //阴影扩散程度
+                        )
+                      ])
+                  ,
+                ),
+                Container(
+                  width: 100,
+                  child: Text(widget.pm,textAlign: TextAlign.center,overflow: TextOverflow.ellipsis,style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.blueAccent
+                  ),),
+                )
+              ],
+            )
         )
         ,
         Positioned(left: 0,top: 120,child:  Container(
@@ -48,16 +61,7 @@ class _YsImgState extends State<YsImg> {
               fontSize: 12,
               color: Colors.white
           ),),
-        ),),
-        Positioned(
-          left: 0,top: 150,
-          width: 110,
-          child: Text(widget.pm,textAlign: TextAlign.center,overflow: TextOverflow.ellipsis,style: TextStyle(
-            fontSize: 13,
-            color: Colors.blueAccent
-          ),),
-        )
-
+        ),)
       ],
     );
   }
