@@ -47,6 +47,12 @@ class _SearchPageState extends State<SearchPage> {
         setState(() {});
 
   }
+  @override
+  void dispose() {
+    textController.dispose();
+    scrollController.dispose();
+    super.dispose();
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(

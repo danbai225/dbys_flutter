@@ -1,9 +1,10 @@
 import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import 'YsPage.dart';
 class ClassificationPage extends StatefulWidget {
   ClassificationPage({Key key}) : super(key: key);
 
@@ -24,24 +25,50 @@ class _ClassificationPageState extends State<ClassificationPage> {
   String yearIndex='全部';
   String sortIndex='更新';
   var dataList=[];
+  int page=1;
+  ScrollController _scrollController;
+  bool showToTopBtn=false;
   @override
   void initState() {
     super.initState();
+    _scrollController = new ScrollController();
     var date = new DateTime.now();
     List.generate(40, (i)=>{
       yearList.add((date.year-i).toString())
     });
     swTag();
-  }
-
-  swTag() async{
-    var response = await http.get("http://sg-na-cn2.sakurafrp.com:57914/api/v1/ys/type?type1="+type1Index+"&type2="+type2Index+"&region="+regionIndex+"&year="+yearIndex+"&sort="+sortIndex+"&page="+1.toString());
-    var json = await jsonDecode(response.body);
-    setState(() {
-      dataList=json['data'];
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        swTag();
+      }
+      if (_scrollController.offset < 1000 && showToTopBtn) {
+        setState(() {
+          showToTopBtn = false;
+        });
+      } else if (_scrollController.offset >= 1000 && showToTopBtn == false) {
+        setState(() {
+          showToTopBtn = true;
+        });
+      }
     });
   }
 
+  swTag() async{
+    page++;
+    if(page==1){
+      dataList=[];
+    }
+    var response = await http.get("http://sg-na-cn2.sakurafrp.com:57914/api/v1/ys/type?type1="+type1Index+"&type2="+type2Index+"&region="+regionIndex+"&year="+yearIndex+"&sort="+sortIndex+"&page="+page.toString());
+    var json = await jsonDecode(response.body);
+    setState(() {
+      dataList+=json['data'];
+    });
+  }
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,9 +78,10 @@ class _ClassificationPageState extends State<ClassificationPage> {
             centerTitle: true,
           ),
           preferredSize:
-              Size.fromHeight(MediaQuery.of(context).size.height * 0.05),
+          Size.fromHeight(MediaQuery.of(context).size.height * 0.05),
         ),
         body: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             children: <Widget>[
               Container(
@@ -64,19 +92,19 @@ class _ClassificationPageState extends State<ClassificationPage> {
                     TagButtons(
                       list: type1List,
                       callback: (index) => {
-                        type1Index = index,swTag()
+                        type1Index = index,page=0,swTag()
                       },
                     )
                   ],
                 ),
               ),Container(
-                height: 30,
+                height:30,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: <Widget>[
                     TagButtons(
                       list: type2List,
-                      callback: (index) => {type2Index = index,swTag()},
+                      callback: (index) => {type2Index = index,page=0,swTag()},
                     )
                   ],
                 ),
@@ -87,7 +115,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
                   children: <Widget>[
                     TagButtons(
                       list: regionList,
-                      callback: (index) => {regionIndex = index,swTag()},
+                      callback: (index) => {regionIndex = index,page=0,swTag()},
                     )
                   ],
                 ),
@@ -98,7 +126,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
                   children: <Widget>[
                     TagButtons(
                       list: yearList,
-                      callback: (index) => {yearIndex = index,swTag()},
+                      callback: (index) => {yearIndex = index,page=0,swTag()},
                     )
                   ],
                 ),
@@ -109,14 +137,26 @@ class _ClassificationPageState extends State<ClassificationPage> {
                   children: <Widget>[
                     TagButtons(
                       list: sortList,
-                      callback: (index) => {sortIndex = index,swTag()},
+                      callback: (index) => {sortIndex = index,page=0,swTag()},
                     )
                   ],
                 ),
               ),
               Column(
                     children: dataList
-                        .map((ys) => Container(
+                        .map((ys) => GestureDetector(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => YsPage(
+                              id: ys['id'],
+                            ),
+                          ),
+                        );
+                      },
+                        child:
+                        Container(
                         height: 100,
                         margin: EdgeInsets.all(2.0),
                         child:Row(
@@ -140,24 +180,42 @@ class _ClassificationPageState extends State<ClassificationPage> {
                               Container(
                                 width: (MediaQuery.of(context).size.width-100),
                                 child: Text('主演:'+ys['zy'],overflow:TextOverflow.ellipsis,style: TextStyle(
-                                fontSize: 13,color: Colors.grey
+                                    fontSize: 13,color: Colors.grey
                                 ),textAlign: TextAlign.left),
                               ),Container(
-                                width: (MediaQuery.of(context).size.width-100) ,
-                                child: Text('介绍:'+ys['js'],overflow:TextOverflow.ellipsis,style: TextStyle(
-                                    fontSize: 10,color: Colors.grey
-                                ),textAlign: TextAlign.left,maxLines: 2)
+                                  width: (MediaQuery.of(context).size.width-100) ,
+                                  child: Text('介绍:'+ys['js'],overflow:TextOverflow.ellipsis,style: TextStyle(
+                                      fontSize: 10,color: Colors.grey
+                                  ),textAlign: TextAlign.left,maxLines: 2)
                               )
                             ],)
 
                           ],
                         )
-                    )).toList()
+                    ))).toList()
                 ) ,
-
             ],
           ),
-        ));
+        ),
+        floatingActionButton:!showToTopBtn?null:
+     FloatingActionButton(
+            elevation: 0,
+            child: Icon(
+              Icons.arrow_upward,
+            ),
+            onPressed: () {
+        _scrollController.animateTo(.0,
+    duration: Duration(milliseconds: 200),
+    curve: Curves.ease
+    );
+            },
+       mini: true,
+       tooltip: "返回顶部",
+          ),
+
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
   }
 }
 
@@ -186,7 +244,7 @@ class _TagButtonsState extends State<TagButtons> {
     List.generate(widget.list.length-1, (i)=>{
       _isSelected.add(false)
     });
-    }
+  }
 
   @override
   Widget build(BuildContext context) {

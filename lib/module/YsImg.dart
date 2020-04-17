@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dbys/Page/YsPage.dart';
 import 'package:flutter/material.dart';
 
 class YsImg extends StatefulWidget {
@@ -13,7 +14,14 @@ class YsImg extends StatefulWidget {
 
 class _YsImgState extends State<YsImg> {
   void onClick(){
-    print(widget.pm);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => YsPage(
+          id: widget.id,
+        ),
+      ),
+    );
   }
   @override
   Widget build(BuildContext context) {
