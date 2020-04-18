@@ -1,6 +1,7 @@
 
 import 'package:dbys/Page/HomePage.dart';
 import 'package:dbys/Page/TestPage.dart';
+import 'package:dbys/Page/YiQiKanPage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
@@ -20,7 +21,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _controllerList = [new HomePage(),new ClassificationPage(),new TestPage()];
+    _controllerList = [new HomePage(),new ClassificationPage(),new YiQiKanPage(),new TestPage()];
   }
   @override
   Widget build(BuildContext context) {

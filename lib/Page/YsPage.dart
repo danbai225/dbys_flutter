@@ -54,7 +54,6 @@ class _YsPageState extends State<YsPage> {
     _videoPlayerController = VideoPlayerController.network(url);
     _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController,
-
         autoPlay: true,
         looping: true,
       );
@@ -241,10 +240,12 @@ class _YsPageState extends State<YsPage> {
                             .map((ys) => MaterialButton(
                                   height: 40,
                                   elevation: 5,
-                                  color: ys['name']==pNAME?Colors.red:Colors.orangeAccent,
+                                  color: ys['name']==pNAME?Theme.of(context).primaryColor:Theme.of(context).accentColor,
                                   textColor: Colors.white,
                                   child: Text(ys['name']),
-                                  onPressed: () => {pNAME=ys['name'],_loadVideo(ys['url'])},
+                                  onPressed: () => {
+                                      pNAME=ys['name'],_loadVideo(ys['url'])
+                                    },
                                 ))
                             .toList()),
                   ],

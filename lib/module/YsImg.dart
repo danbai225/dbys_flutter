@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dbys/Page/YsPage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class YsImg extends StatefulWidget {
@@ -55,7 +56,7 @@ class _YsImgState extends State<YsImg> {
                   width: 100,
                   child: Text(widget.pm,textAlign: TextAlign.center,overflow: TextOverflow.ellipsis,style: TextStyle(
                       fontSize: 13,
-                      color: Colors.blueAccent
+                      color: Colors.blue
                   ),),
                 )
               ],

@@ -28,13 +28,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   fetchData() async {
-    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    SharedPreferences prefs = await _prefs;
-    String syData = prefs.getString("syData");
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    String syData = _prefs.getString("syData");
     var data;
     if (syData != null) {
       data = await jsonDecode(syData);
-      prefs.remove("syData");
+      _prefs.remove("syData");
     } else {
       // 请求接口
       var response = await http.get("https://dbys.vip/sy");

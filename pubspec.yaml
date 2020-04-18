@@ -28,6 +28,8 @@ dependencies:
   fijkplayer: ^0.7.1
   chewie: ^0.9.10
   video_player: ^0.10.8+1
+  flutter_custom_dialog: ^1.0.19
+  flustars: ^0.2.6+1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -46,7 +48,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/img/zw.png
+    - assets/img/
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

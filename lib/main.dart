@@ -1,4 +1,6 @@
 
+import 'package:dbys/Page/LoginPage.dart';
+import 'package:dbys/Page/RegPage.dart';
 import 'package:dbys/Page/SearchPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,20 +17,25 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: '淡白影视',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Color(0xFF93b1c6),
+        accentColor: Color(0xFFc7d0d5),
+        buttonColor:Color(0xFFc7d0d5),
       ),
       home: BootAnimation(),
       routes: <String, WidgetBuilder>{
         '/MainPage': (BuildContext context) => new MainPage(),
         '/SearchPage': (BuildContext context) => new SearchPage(),
+        '/LoginPage': (BuildContext context) => new LoginPage(),
+        '/RegPage': (BuildContext context) => new RegPage(),
       },
     );
   }
+
 }
+
 
 class BootAnimation extends StatefulWidget {
   BootAnimation({Key key}) : super(key: key);
-
   @override
   _BootAnimation createState() => _BootAnimation();
 }
@@ -37,7 +44,6 @@ class _BootAnimation extends State<BootAnimation>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Color xzColor = Colors.black;
-
   @override
   void initState() {
     super.initState();
@@ -61,25 +67,11 @@ class _BootAnimation extends State<BootAnimation>
     });
     _controller.forward();
   }
-
-  goToHomePage() {
-    Navigator.of(context).pushReplacementNamed("/MainPage"); //执行跳转代码
-  }
-
-  //获取首页数据并存储
-  getSyData() async {
-    var response = await http.get("https://dbys.vip/sy");
-    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    SharedPreferences prefs = await _prefs;
-    prefs.setString("syData", response.body);
-  }
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   // 重写build 方法，build 方法返回值为Widget类型，返回内容为屏幕上显示内容。
   @override
   Widget build(BuildContext context) {
@@ -109,5 +101,16 @@ class _BootAnimation extends State<BootAnimation>
             ),
           ))),
     );
+  }
+  goToHomePage() {
+    Navigator.of(context).pushReplacementNamed("/MainPage"); //执行跳转代码
+  }
+
+  //获取首页数据并存储
+  getSyData() async {
+    var response = await http.get("https://dbys.vip/sy");
+    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+    SharedPreferences prefs = await _prefs;
+    prefs.setString("syData", response.body);
   }
 }

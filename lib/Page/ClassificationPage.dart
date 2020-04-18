@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import 'YsPage.dart';
 class ClassificationPage extends StatefulWidget {
   ClassificationPage({Key key}) : super(key: key);
@@ -157,12 +156,15 @@ class _ClassificationPageState extends State<ClassificationPage> {
                       },
                         child:
                         Container(
-                        height: 100,
                         margin: EdgeInsets.all(2.0),
                         child:Row(
                           children: <Widget>[
-                            CachedNetworkImage(imageUrl: ys['tp'],  placeholder: (context, url) => Image.asset("assets/img/zw.png"),
-                              errorWidget: (context, url, error) => Image.asset("assets/img/zw.png"),),
+                            Container(
+                              width: 80,
+                              child: CachedNetworkImage(imageUrl: ys['tp'],  placeholder: (context, url) => Image.asset("assets/img/zw.png"),
+                                errorWidget: (context, url, error) => Image.asset("assets/img/zw.png"),),
+                            )
+                            ,
                             Column(children: <Widget>[
                               Container(
                                 width: (MediaQuery.of(context).size.width-100),
@@ -185,7 +187,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
                               ),Container(
                                   width: (MediaQuery.of(context).size.width-100) ,
                                   child: Text('介绍:'+ys['js'],overflow:TextOverflow.ellipsis,style: TextStyle(
-                                      fontSize: 10,color: Colors.grey
+                                      fontSize: 12,color: Colors.grey
                                   ),textAlign: TextAlign.left,maxLines: 2)
                               )
                             ],)
@@ -212,8 +214,6 @@ class _ClassificationPageState extends State<ClassificationPage> {
        mini: true,
        tooltip: "返回顶部",
           ),
-
-
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
