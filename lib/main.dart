@@ -4,11 +4,16 @@ import 'package:dbys/Page/RegPage.dart';
 import 'package:dbys/Page/SearchPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_page_tracker/flutter_page_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'Page/MainPage.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(
+    TrackerRouteObserverProvider(
+      child: MyApp(),
+    )
+);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -22,6 +27,8 @@ class MyApp extends StatelessWidget {
         buttonColor:Color(0xFFc7d0d5),
       ),
       home: BootAnimation(),
+      // 添加路由事件监听
+      navigatorObservers: [TrackerRouteObserverProvider.of(context)],
       routes: <String, WidgetBuilder>{
         '/MainPage': (BuildContext context) => new MainPage(),
         '/SearchPage': (BuildContext context) => new SearchPage(),
@@ -66,6 +73,7 @@ class _BootAnimation extends State<BootAnimation>
       });
     });
     _controller.forward();
+
   }
   @override
   void dispose() {

@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class TestPage extends StatefulWidget{
@@ -24,7 +25,10 @@ class _TestState extends State<TestPage>{
         body: Center(
           child: IconButton(
             icon: Icon(Icons.add),
-            onPressed: (){
+            onPressed: () async {
+              Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+              SharedPreferences prefs = await _prefs;
+              prefs.remove("UserNmae");
               setState(() {
               });
             },

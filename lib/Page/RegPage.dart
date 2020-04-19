@@ -4,6 +4,7 @@ import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegPage extends StatefulWidget {
   @override
@@ -152,6 +153,20 @@ class _RegPagePageState extends State<RegPage> {
       print(json['message']);
       showDlog(json['message']);
       if(json['message']=="注册成功"){
+        Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+        SharedPreferences prefs = await _prefs;
+        prefs.setString("LastUsername", _unameController.text);
+        var response = await http.post("https://dbys.vip/api/v1/token", body: {
+          'username': _unameController.text,
+          'password': _pwdController.text
+        });
+        var data = await jsonDecode(response.body);
+        if (data['data'] == null) {
+        } else {
+          //登陆成功
+          prefs.setString("UserNmae", data['data']['username']);
+          prefs.setString("Token", data['data']['token']);
+        }
         var duration = new Duration(seconds: 1); //定义一个3秒种的时间
         new Future.delayed(duration, () {
           //设置定时执行

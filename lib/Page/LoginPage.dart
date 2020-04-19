@@ -16,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   bool pwdShow = false; //密码是否显示明文
   GlobalKey _formKey = new GlobalKey<FormState>();
   bool _nameAutoFocus = true;
-
   @override
   void initState() {
     ini();

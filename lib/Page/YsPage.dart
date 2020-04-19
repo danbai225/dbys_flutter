@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 
 class YsPage extends StatefulWidget {
   YsPage({this.id});
-  int id;
+  final int id;
   @override
   State<StatefulWidget> createState() => new _YsPageState();
 }

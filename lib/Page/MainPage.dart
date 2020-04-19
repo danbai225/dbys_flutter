@@ -10,6 +10,7 @@ import 'ClassificationPage.dart';
 
 
 class MainPage extends StatefulWidget {
+  static int index=0;
   MainPage({Key key}) : super(key: key);
   @override
   _MainPageState createState() => _MainPageState();
@@ -35,6 +36,7 @@ class _MainPageState extends State<MainPage> {
           onTap: (index) {
             setState(() {
               _currentIndex = index;
+              MainPage.index=index;
             });
           },
           items: [
