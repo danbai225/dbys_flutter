@@ -16,6 +16,17 @@
 + p2p视频加速
 + 一起看观看,语音连麦
 
+
+## 应用图
+
+![Screenshot_2020-04-21-22-35-23-45_f802aed858f448d.jpg](http://danbai.oss-cn-chengdu.aliyuncs.com/img/2020/04/21/ad07b5a4e0f1d.jpg)
+
+![Screenshot_2020-04-21-22-35-27-50_f802aed858f448d.jpg](http://danbai.oss-cn-chengdu.aliyuncs.com/img/2020/04/21/f0655b33db660.jpg)
+
+![Screenshot_2020-04-21-22-36-10-77_f802aed858f448d.jpg](http://danbai.oss-cn-chengdu.aliyuncs.com/img/2020/04/21/b990dc0ce9410.jpg)
+
+![Screenshot_2020-04-21-22-37-04-68_f802aed858f448d.jpg](http://danbai.oss-cn-chengdu.aliyuncs.com/img/2020/04/21/6dec09423ddd7.jpg)
+
 ## 项目所用到的
 
 + 播放器:video_player

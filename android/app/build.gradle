@@ -61,6 +61,10 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+                //关闭混淆
+            minifyEnabled false //删除无用代码
+            shrinkResources false //删除无用资源
+
         }
     }
 
