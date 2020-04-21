@@ -151,12 +151,14 @@ class _YiQiKanPageState extends State<YiQiKanPage>
                 child: Container(
                   alignment: Alignment.topCenter,
                   child: DataTable(
-                    columnSpacing: MediaQuery.of(context).size.width * 0.10,
+                    columnSpacing: 0,
                     columns:
                         columns.map((e) => DataColumn(label: Text(e))).toList(),
                     rows: roomList
                         .map((room) => DataRow(cells: [
-                              DataCell(Text('${room['name']}')),
+                              DataCell(Text(
+                                '${room['name'].toString().length > 15 ? room['name'].toString().substring(0, 15) : room['name']}',
+                              )),
                               DataCell(Text('${room['online']}')),
                               DataCell(room['needPass']
                                   ? Icon(Icons.lock_outline)
@@ -176,18 +178,19 @@ class _YiQiKanPageState extends State<YiQiKanPage>
                   ),
                 ),
               ),
-        floatingActionButton:!iflogin?null:FloatingActionButton(
-          heroTag: "yiqikan",
-          elevation: 10,
-          child: Icon(
-            Icons.add,
-          ),
-          onPressed: () {
-            newRoom();
-          },
-          tooltip: "新建房间",
-        )
-    );
+        floatingActionButton: !iflogin
+            ? null
+            : FloatingActionButton(
+                heroTag: "yiqikan",
+                elevation: 10,
+                child: Icon(
+                  Icons.add,
+                ),
+                onPressed: () {
+                  newRoom();
+                },
+                tooltip: "新建房间",
+              ));
   }
 
   join(data) {
@@ -205,7 +208,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
         ),
       );
     } else {
-      showPassErrDlog();
+      Dialog();
     }
   }
 
@@ -213,46 +216,55 @@ class _YiQiKanPageState extends State<YiQiKanPage>
     YiQiKanSocket.send(
         jsonEncode({"type": "join", "roomId": id, "pass": pass}));
   }
-  sendNewRoom(String name,String pass){
-    _nameController.text="";
+
+  sendNewRoom(String name, String pass) {
+    _nameController.text = "";
     _passController.text = "";
-    YiQiKanSocket.send(jsonEncode({"type":"newRoom","name":name,"pass":pass}));
+    YiQiKanSocket.send(
+        jsonEncode({"type": "newRoom", "name": name, "pass": pass}));
   }
-  newRoom(){
+
+  newRoom() {
     YYDialog().build(context)
       ..width = 220
       ..borderRadius = 4.0
       ..widget(Column(
         children: <Widget>[
           Text("创建房间"),
-          Container(height:60,child: Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-              controller: _nameController,
-              style: TextStyle(color: Colors.blue),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: '房间名',
+          Container(
+            height: 60,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                controller: _nameController,
+                style: TextStyle(color: Colors.blue),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '房间名',
+                ),
+                onEditingComplete: () {
+                  sendNewRoom(_nameController.text, _passController.text);
+                },
               ),
-              onEditingComplete: () {
-                sendNewRoom(_nameController.text,_passController.text);
-              },
             ),
-          ),),
-          Container(height:60,child: Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-              controller: _passController,
-              style: TextStyle(color: Colors.blue),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: '密码(不要可留空)',
+          ),
+          Container(
+            height: 60,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                controller: _passController,
+                style: TextStyle(color: Colors.blue),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '密码(不要可留空)',
+                ),
+                onEditingComplete: () {
+                  sendNewRoom(_nameController.text, _passController.text);
+                },
               ),
-              onEditingComplete: () {
-                sendNewRoom(_nameController.text,_passController.text);
-              },
             ),
-          ),)
+          )
         ],
       ))
       ..divider()
@@ -263,18 +275,16 @@ class _YiQiKanPageState extends State<YiQiKanPage>
         text1: "取消",
         fontSize1: 14.0,
         fontWeight1: FontWeight.bold,
-        onTap1: () {
-          print("取消");
-        },
         text2: "确定",
         fontSize2: 14.0,
         fontWeight2: FontWeight.bold,
         onTap2: () {
-          sendNewRoom(_nameController.text,_passController.text);
+          sendNewRoom(_nameController.text, _passController.text);
         },
       )
       ..show();
   }
+
   void showInputPass(int id) {
     YYDialog().build(context)
       ..width = 220
@@ -282,22 +292,24 @@ class _YiQiKanPageState extends State<YiQiKanPage>
       ..widget(Column(
         children: <Widget>[
           Text("加入此房间需要密码"),
-          Container(height:70,child: Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-              controller: _passController,
-              style: TextStyle(color: Colors.blue),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: '密码',
+          Container(
+            height: 70,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                controller: _passController,
+                style: TextStyle(color: Colors.blue),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '密码',
+                ),
+                onEditingComplete: () {
+                  joinRoom(id, _passController.text);
+                  _passController.text = "";
+                },
               ),
-              onEditingComplete: () {
-                joinRoom(id, _passController.text);
-                _passController.text = "";
-              },
             ),
-          ),)
-
+          )
         ],
       ))
       ..divider()
@@ -308,9 +320,6 @@ class _YiQiKanPageState extends State<YiQiKanPage>
         text1: "取消",
         fontSize1: 14.0,
         fontWeight1: FontWeight.bold,
-        onTap1: () {
-          print("取消");
-        },
         text2: "确定",
         fontSize2: 14.0,
         fontWeight2: FontWeight.bold,
@@ -322,7 +331,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
       ..show();
   }
 
-  showPassErrDlog() {
+  showPassErrDialog() {
     YYDialog().build(context)
       ..width = 120
       ..height = 110

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 
 class RegPage extends StatefulWidget {
   @override
@@ -19,12 +20,20 @@ class _RegPagePageState extends State<RegPage> {
   TextEditingController _verificationController = new TextEditingController();
   bool pwdShow = false; //密码是否显示明文
   GlobalKey _formKey = new GlobalKey<FormState>();
-  bool isv=false;//发送过验证码
-  TimerUtil t;//验证码定时器
-  int yzmTimer=0;
+  bool isv = false; //发送过验证码
+  TimerUtil t; //验证码定时器
+  int yzmTimer = 0;
+
   @override
   void initState() {
     super.initState();
+    UmengAnalyticsPlugin.pageStart("RegPage");
+  }
+
+  @override
+  void dispose() {
+    UmengAnalyticsPlugin.pageEnd("RegPage");
+    super.dispose();
   }
 
   @override
@@ -102,20 +111,25 @@ class _RegPagePageState extends State<RegPage> {
                       labelText: '邮箱',
                       hintText: '请输入电子邮箱',
                       prefixIcon: Icon(Icons.email),
-                      suffixIcon: isv?Text(yzmTimer.toString()):FlatButton(
-                        color: Theme.of(context).primaryColor,
-                        child: Text("获取验证码"),
-                        onPressed: (){
-                          if(RegexUtil.isEmail(_emailController.text)&(_unameController.text.length>3)&!isv){
-                            getYzm();
-                          }
-                        },
-                      )),
+                      suffixIcon: isv
+                          ? Text(yzmTimer.toString())
+                          : FlatButton(
+                              color: Theme.of(context).primaryColor,
+                              child: Text("获取验证码"),
+                              onPressed: () {
+                                if (RegexUtil.isEmail(_emailController.text) &
+                                    (_unameController.text.length > 3) &
+                                    !isv) {
+                                  getYzm();
+                                }
+                              },
+                            )),
                   //校验密码（不能为空）
                   validator: (v) {
                     return (RegexUtil.isEmail(v)) ? null : "邮箱格式不正确";
                   },
-                ),TextFormField(
+                ),
+                TextFormField(
                   keyboardType: TextInputType.number,
                   controller: _verificationController,
                   decoration: InputDecoration(
@@ -148,11 +162,16 @@ class _RegPagePageState extends State<RegPage> {
   _onRegistert() async {
     // 提交前，先验证各个表单字段是否合法
     if ((_formKey.currentState as FormState).validate()) {
-      var response = await http.post("https://dbys.vip/regapp",body: {'username': _unameController.text ,'password': _pwdController.text,'email':_emailController.text,'yzm':_verificationController.text});
-      var json=jsonDecode(response.body);
+      var response = await http.post("https://dbys.vip/regapp", body: {
+        'username': _unameController.text,
+        'password': _pwdController.text,
+        'email': _emailController.text,
+        'yzm': _verificationController.text
+      });
+      var json = jsonDecode(response.body);
       print(json['message']);
-      showDlog(json['message']);
-      if(json['message']=="注册成功"){
+      showDialog(json['message']);
+      if (json['message'] == "注册成功") {
         Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
         SharedPreferences prefs = await _prefs;
         prefs.setString("LastUsername", _unameController.text);
@@ -178,26 +197,32 @@ class _RegPagePageState extends State<RegPage> {
       }
     }
   }
-  getYzm(){
-    isv=true;
-    yzmTimer=30;
-    http.get("https://dbys.vip/getvalidate?email="+_emailController.text+"&username="+_unameController.text);
-    t=TimerUtil();
+
+  getYzm() {
+    isv = true;
+    yzmTimer = 30;
+    http.get("https://dbys.vip/getvalidate?email=" +
+        _emailController.text +
+        "&username=" +
+        _unameController.text);
+    t = TimerUtil();
     t.setInterval(1000);
     t.setTotalTime(30);
     t.setOnTimerTickCallback((int tick) {
       setState(() {
-        yzmTimer=30-tick;
-        if(yzmTimer==0){
-          isv=false;
+        yzmTimer = 30 - tick;
+        if (yzmTimer == 0) {
+          isv = false;
           t.cancel();
         }
       });
     });
     t.startTimer();
   }
+
   var yyDialog;
-  showDlog(String msg){
+
+  showDialog(String msg) {
     yyDialog = YYDialog().build(context)
       ..width = 120
       ..height = 40

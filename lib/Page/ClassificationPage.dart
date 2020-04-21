@@ -188,9 +188,6 @@ class _ClassificationPageState extends State<ClassificationPage> {
                 children: dataList
                     .map((ys) => GestureDetector(
                         onTap: () {
-                          _scrollController.animateTo(.0,
-                              duration: Duration(milliseconds: 200),
-                              curve: Curves.ease);
                           Navigator.push(
                             context,
                             MaterialPageRoute(

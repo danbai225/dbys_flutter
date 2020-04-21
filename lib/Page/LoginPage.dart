@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -16,10 +17,18 @@ class _LoginPageState extends State<LoginPage> {
   bool pwdShow = false; //密码是否显示明文
   GlobalKey _formKey = new GlobalKey<FormState>();
   bool _nameAutoFocus = true;
+
   @override
   void initState() {
     ini();
+    UmengAnalyticsPlugin.pageStart("LoginPage");
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    UmengAnalyticsPlugin.pageEnd("LoginPage");
+    super.dispose();
   }
 
   ini() async {
@@ -109,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
       });
       var data = await jsonDecode(response.body);
       if (data['data'] == null) {
-        showDlog(false);
+        showDialog(false);
         var duration = new Duration(seconds: 2); //定义一个3秒种的时间
         new Future.delayed(duration, () {
           //设置定时执行
@@ -120,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
         //登陆成功
         prefs.setString("UserNmae", data['data']['username']);
         prefs.setString("Token", data['data']['token']);
-        showDlog(true);
+        showDialog(true);
         var duration = new Duration(seconds: 1);
         new Future.delayed(duration, () {
           //设置定时执行
@@ -134,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
 
   var yyDialog;
 
-  showDlog(bool B) {
+  showDialog(bool B) {
     String gif;
     String msg;
     if (B) {

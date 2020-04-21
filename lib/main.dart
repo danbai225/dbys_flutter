@@ -1,4 +1,6 @@
+import 'dart:io';
 
+import 'package:cdnbye/cdnbye.dart';
 import 'package:dbys/Page/LoginPage.dart';
 import 'package:dbys/Page/RegPage.dart';
 import 'package:dbys/Page/SearchPage.dart';
@@ -8,23 +10,24 @@ import 'package:flutter_page_tracker/flutter_page_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'Page/MainPage.dart';
+import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
+import 'package:flutter_xupdate/flutter_xupdate.dart';
 
-void main() => runApp(
-    TrackerRouteObserverProvider(
+void main() => runApp(TrackerRouteObserverProvider(
       child: MyApp(),
-    )
-);
+    ));
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: '淡白影视',
       theme: ThemeData(
         primaryColor: Color(0xFF93b1c6),
         accentColor: Color(0xFFc7d0d5),
-        buttonColor:Color(0xFFc7d0d5),
+        buttonColor: Color(0xFFc7d0d5),
       ),
       home: BootAnimation(),
       // 添加路由事件监听
@@ -37,12 +40,11 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-
 }
-
 
 class BootAnimation extends StatefulWidget {
   BootAnimation({Key key}) : super(key: key);
+
   @override
   _BootAnimation createState() => _BootAnimation();
 }
@@ -51,10 +53,19 @@ class _BootAnimation extends State<BootAnimation>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Color xzColor = Colors.black;
+
   @override
   void initState() {
     super.initState();
+    //更新初始化
+    initXUpdate();
+    FlutterXUpdate.checkUpdate(url: 'https://dbys.vip/api/v1/update-flutter', supportBackgroundUpdate: true);
     getSyData();
+    //友盟初始化
+    UmengAnalyticsPlugin.init(
+        androidKey: '5dd51f3e3fc1957eb5000c6c', channel: "flutter");
+    //P2P初始化
+    Cdnbye.init("_WJjufJZR", config: P2pConfig.byDefault());
     var duration = new Duration(seconds: 3); //定义一个三秒种的时间
     new Future.delayed(duration, () {
       //设置定时执行
@@ -73,13 +84,14 @@ class _BootAnimation extends State<BootAnimation>
       });
     });
     _controller.forward();
-
   }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
+
   // 重写build 方法，build 方法返回值为Widget类型，返回内容为屏幕上显示内容。
   @override
   Widget build(BuildContext context) {
@@ -110,6 +122,7 @@ class _BootAnimation extends State<BootAnimation>
           ))),
     );
   }
+
   goToHomePage() {
     Navigator.of(context).pushReplacementNamed("/MainPage"); //执行跳转代码
   }
@@ -120,5 +133,40 @@ class _BootAnimation extends State<BootAnimation>
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     SharedPreferences prefs = await _prefs;
     prefs.setString("syData", response.body);
+  }
+  ///更新初始化
+  void initXUpdate() {
+    if (Platform.isAndroid) {
+      FlutterXUpdate.init(
+
+        ///是否输出日志
+          debug: true,
+
+          ///是否使用post请求
+          isPost: false,
+
+          ///post请求是否是上传json
+          isPostJson: false,
+
+          ///是否开启WIFI
+          isWifiOnly: false,
+
+          ///是否开启自动模式
+          isAutoMode: false,
+
+          ///需要设置的公共参数
+          supportSilentInstall: false,
+
+          ///在下载过程中，如果点击了取消的话，是否弹出切换下载方式的重试提示弹窗
+          enableRetry: false)
+          .then((value) {
+        print("初始化成功: $value");
+      }).catchError((error) {
+        print(error);
+      });
+
+    } else {
+      print("ios暂不支持XUpdate更新");
+    }
   }
 }

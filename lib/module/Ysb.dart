@@ -19,22 +19,22 @@ class Ysb {
 
   Ysb(
       {this.id,
-        this.pf,
-        this.pm,
-        this.tp,
-        this.zt,
-        this.bm,
-        this.dy,
-        this.zy,
-        this.lx,
-        this.dq,
-        this.yy,
-        this.sytime,
-        this.pctime,
-        this.gxtime,
-        this.js,
-        this.gkdz,
-        this.xzdz});
+      this.pf,
+      this.pm,
+      this.tp,
+      this.zt,
+      this.bm,
+      this.dy,
+      this.zy,
+      this.lx,
+      this.dq,
+      this.yy,
+      this.sytime,
+      this.pctime,
+      this.gxtime,
+      this.js,
+      this.gkdz,
+      this.xzdz});
 
   Ysb.fromJson(Map<String, dynamic> json) {
     id = json['id'];

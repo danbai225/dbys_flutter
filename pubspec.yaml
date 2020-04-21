@@ -31,6 +31,10 @@ dependencies:
   flustars: ^0.2.6+1
   flutter_page_tracker: ^2.1.7
   better_socket: ^1.1.4
+  umeng_analytics_plugin: ^1.0.2
+  agora_rtc_engine: ^1.0.10
+  permission_handler: ^5.0.0+hotfix.3
+  flutter_xupdate: ^0.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

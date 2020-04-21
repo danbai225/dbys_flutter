@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dbys/module/YsImg.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -11,101 +12,109 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   TextEditingController textController = TextEditingController();
-  ScrollController scrollController =ScrollController();
+  ScrollController scrollController = ScrollController();
   List ySList = [];
-  String tip="";
-  double barHeight=45;
-  double barOpacity=1.0;
+  String tip = "";
+  double barHeight = 45;
+  double barOpacity = 1.0;
+
   @override
   void initState() {
     super.initState();
-    scrollController.addListener((){
+    UmengAnalyticsPlugin.pageStart("SearchPage");
+    scrollController.addListener(() {
       setState(() {
-        if(scrollController.offset>200&&scrollController.offset<=250){
-            barOpacity=((250-scrollController.offset)/50);
-            if(barOpacity<0.1){
-              barHeight=0;
-            }else{
-              barHeight=45;
-            }
+        if (scrollController.offset > 200 && scrollController.offset <= 250) {
+          barOpacity = ((250 - scrollController.offset) / 50);
+          if (barOpacity < 0.1) {
+            barHeight = 0;
+          } else {
+            barHeight = 45;
+          }
         }
       });
     });
 
-    textController.addListener((){
+    textController.addListener(() {
       setState(() {
-        barOpacity=1;
+        barOpacity = 1;
       });
     });
   }
-  sou() async{
 
-        var response = await http.get("https://dbys.vip/api/v1/ys/search/"+textController.text);
-        var data = await jsonDecode(response.body);
-        ySList=data['data'];
-        tip='找到关于"'+textController.text+'"的影视一共'+ySList.length.toString()+'部';
-        setState(() {});
-
+  sou() async {
+    var response = await http
+        .get("https://dbys.vip/api/v1/ys/search/" + textController.text);
+    var data = await jsonDecode(response.body);
+    ySList = data['data'];
+    tip = '找到关于"' +
+        textController.text +
+        '"的影视一共' +
+        ySList.length.toString() +
+        '部';
+    setState(() {});
   }
+
   @override
   void dispose() {
     textController.dispose();
     scrollController.dispose();
+    UmengAnalyticsPlugin.pageEnd("SearchPage");
     super.dispose();
   }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        child:Opacity(
-            opacity:barOpacity,
-          child: AppBar(
-              actions: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  // 如果有抽屉的话的就打开
-                  onPressed: () {
-                    sou();
-                  },
-                  // 显示描述信息
-                  tooltip: "搜索",
-                )
-              ],
-              centerTitle: true,
-              title: TextField(
-                controller: textController,
-                textInputAction:TextInputAction.search,
-                onSubmitted:(s)=>{
-                  sou()
-                },
-                autofocus:true,
-                decoration: new InputDecoration(
-                  contentPadding: EdgeInsets.only(top: 0.0),
-                  hintText: '输入片名/演员/导演', border: InputBorder.none,
-                  suffix: textController.text==""?null:IconButton(
-                    icon: Icon(Icons.cancel),
+          child: Opacity(
+            opacity: barOpacity,
+            child: AppBar(
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    // 如果有抽屉的话的就打开
                     onPressed: () {
-                      textController.clear();
+                      sou();
                     },
+                    // 显示描述信息
+                    tooltip: "搜索",
+                  )
+                ],
+                centerTitle: true,
+                title: TextField(
+                  controller: textController,
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (s) => {sou()},
+                  autofocus: true,
+                  decoration: new InputDecoration(
+                    contentPadding: EdgeInsets.only(top: 0.0),
+                    hintText: '输入片名/演员/导演',
+                    border: InputBorder.none,
+                    suffix: textController.text == ""
+                        ? null
+                        : IconButton(
+                            icon: Icon(Icons.cancel),
+                            onPressed: () {
+                              textController.clear();
+                            },
+                          ),
                   ),
                 ),
-              ),
-              // leading: ,
-              // 现在标题前面的Widget，一般为一个图标按钮，也可以是任意Widget
-              leading: Builder(
-                builder: (BuildContext context) {
-                  return IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.of(context).pop(); //返回
-                    },
-                    tooltip: "返回",
-                  );
-                },
-              )),
-        )
-        ,preferredSize:
-      Size.fromHeight(barHeight)
-      ),
+                // leading: ,
+                // 现在标题前面的Widget，一般为一个图标按钮，也可以是任意Widget
+                leading: Builder(
+                  builder: (BuildContext context) {
+                    return IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.of(context).pop(); //返回
+                      },
+                      tooltip: "返回",
+                    );
+                  },
+                )),
+          ),
+          preferredSize: Size.fromHeight(barHeight)),
       body: SingleChildScrollView(
         controller: scrollController,
         child: Column(
@@ -115,17 +124,18 @@ class _SearchPageState extends State<SearchPage> {
               child: Wrap(
                   children: ySList
                       .map((ys) => Container(
-                      margin: EdgeInsets.all(2.0),
-                      child:YsImg(
-                        url: ys['tp'],
-                        pm: ys['pm'],
-                        id: ys['id'],
-                        zt: ys['zt'],
-                      ))).toList()),
+                          margin: EdgeInsets.all(2.0),
+                          child: YsImg(
+                            url: ys['tp'],
+                            pm: ys['pm'],
+                            id: ys['id'],
+                            zt: ys['zt'],
+                          )))
+                      .toList()),
             )
           ],
         ),
-        ),
+      ),
     );
   }
 }
