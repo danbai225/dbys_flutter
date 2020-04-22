@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -52,6 +53,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
   int page = 1;
   ScrollController _scrollController;
   bool showToTopBtn = false;
+  bool loadData = false;
 
   @override
   void initState() {
@@ -61,8 +63,9 @@ class _ClassificationPageState extends State<ClassificationPage> {
     List.generate(40, (i) => {yearList.add((date.year - i).toString())});
     swTag();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
+      if (_scrollController.position.pixels >
+              _scrollController.position.maxScrollExtent - 300 &&
+          !loadData) {
         swTag();
       }
       if (_scrollController.offset < 1000 && showToTopBtn) {
@@ -78,6 +81,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
   }
 
   swTag() async {
+    loadData = true;
     page++;
     if (page == 1) {
       dataList = [];
@@ -98,6 +102,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
     setState(() {
       dataList += json['data'];
     });
+    loadData = false;
   }
 
   @override
@@ -114,8 +119,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
           title: Text("分类"),
           centerTitle: true,
         ),
-        preferredSize:
-            Size.fromHeight(MediaQuery.of(context).size.height * 0.05),
+        preferredSize: Size.fromHeight(40),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,

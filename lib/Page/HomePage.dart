@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                 },
               )),
           preferredSize:
-              Size.fromHeight(MediaQuery.of(context).size.height * 0.05)),
+              Size.fromHeight(40)),
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[

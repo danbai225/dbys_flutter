@@ -6,6 +6,8 @@ import 'package:chewie/chewie.dart';
 import 'package:dbys/module/Ysb.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
@@ -13,6 +15,7 @@ import 'package:video_player/video_player.dart';
 
 class YsPage extends StatefulWidget {
   YsPage({this.id});
+
   final int id;
 
   @override
@@ -27,7 +30,25 @@ class _YsPageState extends State<YsPage> {
   String pNAME;
   String username;
   String token;
-  Timer blTime;
+  TimerUtil postTimer;
+  List tvs = [];
+  int tpIndex;
+
+  //与原生交互的通道
+  static const platform = const MethodChannel('cn.p00q.dbys/tp');
+
+  getList() async {
+    try {
+      tvs = await platform.invokeMethod('getList');
+    } on PlatformException catch (e) {
+      print("错误:$e");
+    }
+  }
+
+  tp(String url, int index) {
+    platform.invokeMethod('tp', jsonEncode({"url": url, "index": index}));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,72 +60,99 @@ class _YsPageState extends State<YsPage> {
   void dispose() {
     _videoPlayerController.dispose();
     _chewieController.dispose();
-    blTime.cancel();
+    postTimer.cancel();
     UmengAnalyticsPlugin.pageEnd("YsPage");
     super.dispose();
   }
 
   init() async {
+    //获取投屏设备
+    getList();
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     SharedPreferences prefs = await _prefs;
     username = prefs.getString("UserNmae");
     token = prefs.getString("Token");
-    var response =
-        await http.get("https://dbys.vip/api/v1/ys/" + widget.id.toString());
+    //获取影视数据
+    var response = await http.get(
+        "https://dbys.vip/api/v1/ysAndLs?id=${widget.id.toString()}&username=$username&token=$token");
     var json = await jsonDecode(response.body);
-    Map ysbMap = json['data'];
+    //转对象
+    Map ysbMap = json['data']['ys'];
     ysb = new Ysb.fromJson(ysbMap);
     playList = jsonDecode(ysb.gkdz);
-    pNAME = playList[0]['name'];
-    _loadVideo(playList[0]['url']);
+    //是否有观看历史
+    if (json['data']['time'] != null) {
+      pNAME = json['data']['gkls']['jiname'];
+
+      _loadVideo(json['data']['gkls']['url'],
+          Duration(seconds: json['data']['time'].toInt()));
+    } else {
+      pNAME = playList[0]['name'];
+      _loadVideo(playList[0]['url'], null);
+    }
+    //定时器 定时发送观看时间
+    postTimer = TimerUtil();
+    postTimer.setInterval(2000);
+    postTimer.setOnTimerTickCallback((int tick) {
+      //有视频正在播放
+      if (_videoPlayerController != null &&
+          _videoPlayerController.value.isPlaying) {
+        Duration d = _videoPlayerController.value.position;
+        if (username != null) {
+          http.post("https://dbys.vip/api/v1/ys/time", body: {
+            "ysid": widget.id.toString(),
+            "username": username,
+            "ysjiname": pNAME,
+            "time": d.inSeconds.toString(),
+            "token": token
+          });
+        }
+        //更新长宽比
+        if (_videoPlayerController.value.aspectRatio !=
+            _chewieController.aspectRatio) {
+          print("长宽");
+          _chewieController = ChewieController(
+            allowedScreenSleep: false,
+            videoPlayerController: _videoPlayerController,
+            aspectRatio: _videoPlayerController.value.aspectRatio == 1.0
+                ? 16 / 9
+                : _videoPlayerController.value.aspectRatio,
+            autoPlay: true,
+            looping: true,
+          );
+          setState(() {});
+        }
+      }
+    });
+    postTimer.startTimer();
     setState(() {});
   }
 
-  _loadVideo(String url) async {
+  //加载视频
+  _loadVideo(String url, Duration startTime) async {
+    //是否有视频有就释放
     if (_videoPlayerController != null) {
       _videoPlayerController.pause();
     }
-    var response;
-    if(username!=null){
-      response =
-      await http.post("https://dbys.vip/ys/gettime",body: {"ysid":widget.id.toString(),"username":username,"ysjiname":pNAME});
-      //定时器 定时发送观看时间
-      TimerUtil postTimer=TimerUtil();
-      postTimer.setInterval(2000);
-      postTimer.setOnTimerTickCallback((int tick)  {
-        if(_videoPlayerController!=null&&_videoPlayerController.value.isPlaying){
-          Duration d= _videoPlayerController.value.position;
-          http.post("https://dbys.vip/api/v1/ys/time",body: {"ysid":widget.id.toString(),"username":username,"ysjiname":pNAME,"time":d.inSeconds.toString(),"token":token});
-        }
-        });
-      postTimer.startTimer();
+    if (username != null && startTime == null) {
+      var response = await http.post("https://dbys.vip/ys/gettime", body: {
+        "ysid": widget.id.toString(),
+        "username": username,
+        "ysjiname": pNAME
+      });
+      startTime = Duration(seconds: double.parse(response.body).toInt());
     }
     //初始化视频播放
     url = await Cdnbye.parseStreamURL(url);
     _videoPlayerController = VideoPlayerController.network(url);
     _chewieController = ChewieController(
-      allowedScreenSleep: false,
-      videoPlayerController: _videoPlayerController,
-      aspectRatio: 16 / 9,
-      autoPlay: true,
-      looping: true,
-      startAt: response!=null?Duration(seconds: double.parse(response.body).toInt()):null
-    );
-    setState(() {});
-    //5秒后获取视频长宽比并设置
-    var timeout = const Duration(seconds: 5);
-    blTime=Timer(timeout, () async {
-      _chewieController = ChewieController(
         allowedScreenSleep: false,
         videoPlayerController: _videoPlayerController,
-        aspectRatio: _videoPlayerController.value.aspectRatio == 1.0
-            ? 16 / 9
-            : _videoPlayerController.value.aspectRatio,
+        aspectRatio: 16 / 9,
         autoPlay: true,
         looping: true,
-      );
-      setState(() {});
-    });
+        startAt: startTime);
+    setState(() {});
   }
 
   Widget build(BuildContext context) {
@@ -128,8 +176,7 @@ class _YsPageState extends State<YsPage> {
                     );
                   },
                 )),
-            preferredSize:
-                Size.fromHeight(MediaQuery.of(context).size.height * 0.06)),
+            preferredSize: Size.fromHeight(40)),
         body: Column(
           children: <Widget>[
             Container(
@@ -143,6 +190,70 @@ class _YsPageState extends State<YsPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Container(
+                            width: 200,
+                            child: SingleChildScrollView(
+                                child: ExpansionTile(
+                              title: Text("选择投屏设备"),
+                              children: tvs
+                                  .map((tv) => MaterialButton(
+                                        elevation: 5,
+                                        child: Text(tv),
+                                        onPressed: () {
+                                          for (int i = 0; i < tvs.length; i++) {
+                                            if (tvs[i] == tv) {
+                                              tpIndex = i;
+                                              Fluttertoast.showToast(
+                                                  msg: "选中投屏设备:$tv",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .accentColor,
+                                                  textColor: Colors.white,
+                                                  fontSize: 16.0);
+                                            }
+                                          }
+                                        },
+                                      ))
+                                  .toList(),
+                            ))),
+                        MaterialButton(
+                          elevation: 5,
+                          color: Theme.of(context).accentColor,
+                          textColor: Colors.white,
+                          child: Text("投屏"),
+                          onPressed: () {
+                            if (tpIndex == null) {
+                              Fluttertoast.showToast(
+                                  msg: "没有选择设备",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else {
+                              for (int i = 0; i < playList.length; i++) {
+                                if (playList[i]['name'] == pNAME) {
+                                  tp(playList[i]['url'], tpIndex);
+                                  Fluttertoast.showToast(
+                                      msg: "投屏中",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      backgroundColor:
+                                          Theme.of(context).accentColor,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                }
+                              }
+                            }
+                          },
+                        )
+                      ],
+                    ),
                     Row(
                       children: <Widget>[
                         Container(
@@ -296,7 +407,7 @@ class _YsPageState extends State<YsPage> {
                                   child: Text(ys['name']),
                                   onPressed: () => {
                                     pNAME = ys['name'],
-                                    _loadVideo(ys['url'])
+                                    _loadVideo(ys['url'], null)
                                   },
                                 ))
                             .toList()),

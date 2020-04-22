@@ -86,16 +86,16 @@ class _SearchPageState extends State<SearchPage> {
                   textInputAction: TextInputAction.search,
                   onSubmitted: (s) => {sou()},
                   autofocus: true,
+                  style: TextStyle(fontSize: 20),
                   decoration: new InputDecoration(
-                    contentPadding: EdgeInsets.only(top: 0.0),
                     hintText: '输入片名/演员/导演',
                     border: InputBorder.none,
                     suffix: textController.text == ""
                         ? null
                         : IconButton(
-                            icon: Icon(Icons.cancel),
+                            icon: Icon(Icons.cancel,size: 15),
                             onPressed: () {
-                              textController.clear();
+                              textController.text="";
                             },
                           ),
                   ),

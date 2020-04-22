@@ -4,7 +4,7 @@
 
 # 淡白影视安卓端
 
-![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.0.0-blue)
+![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.0.1-blue)
 
 [下载地址](https://danbai-cloud.oss-cn-chengdu.aliyuncs.com/uploads%2F2020%2F04%2F21%2F%E6%B7%A1%E7%99%BD%E5%BD%B1%E8%A7%86_Flutter.apk)
 
@@ -41,3 +41,7 @@
 + 版本初始化
 + 基本功能(播放、分类、搜索、一起看、登录注册、影视记录等...)
 
+### 2020-4-22
+
++ 修复影视进度同步
++ 投屏功能

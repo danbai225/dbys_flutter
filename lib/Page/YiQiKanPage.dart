@@ -119,7 +119,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
             centerTitle: true,
           ),
           preferredSize:
-              Size.fromHeight(MediaQuery.of(context).size.height * 0.05),
+              Size.fromHeight(40),
         ),
         body: !iflogin
             ? Center(
