@@ -1,10 +1,14 @@
 import 'dart:convert';
 
+import 'package:dbys/State/UserState.dart';
 import 'package:dbys/module/YsImg.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -20,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   List dsjList = [];
   List zyList = [];
   List dmList = [];
+  String gg = "";
 
   @override
   void initState() {
@@ -30,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   fetchData() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     String syData = _prefs.getString("syData");
+    gg = _prefs.getString("gg");
     var data;
     if (syData != null) {
       data = await jsonDecode(syData);
@@ -51,6 +57,80 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //添加侧滑菜单Widget
+      drawer: Drawer(
+          child: ListView(
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+            child: Center(
+              child: SizedBox(
+                width: 100.0,
+                height: 80.0,
+                child: Column(
+                  children: <Widget>[
+                    CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(UserState.headUrl == null
+                            ? "http://danbai.oss-cn-chengdu.aliyuncs.com/img/2019/12/06/3027a00827e93.png"
+                            : UserState.headUrl)),
+                    Text(UserState.ifLogin ? UserState.username : "未登录")
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Text("公告:$gg"),
+          ListTile(
+            leading: Icon(Icons.bug_report),
+            title: MaterialButton(
+              child: Text("反馈bug"),
+              onPressed: () {
+                showFeedbackDialog(1);
+              },
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.assignment_turned_in),
+            title: MaterialButton(
+              child: Text("求片"),
+              onPressed: () {
+                showFeedbackDialog(2);
+              },
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.info),
+            title: MaterialButton(
+              child: Text("关于APP"),
+              onPressed: () {
+                showDialog(
+                    context: context, builder: (ctx) => _buildAboutDialog());
+              },
+            ),
+          ),
+          UserState.ifLogin
+              ? ListTile(
+                  leading: Icon(Icons.exit_to_app),
+                  title: MaterialButton(
+                      child: Text("退出登录"),
+                      onPressed: () {
+                        UserState.exitLogin();
+                        setState(() {});
+                      }),
+                )
+              : ListTile(
+                  leading: Icon(Icons.near_me),
+                  title: MaterialButton(
+                      child: Text("登录"),
+                      onPressed: () {
+                        Navigator.of(this.context).pushNamed("/LoginPage");
+                      }),
+                )
+        ],
+      )),
       appBar: PreferredSize(
           child: AppBar(
               actions: <Widget>[
@@ -81,8 +161,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               )),
-          preferredSize:
-              Size.fromHeight(40)),
+          preferredSize: Size.fromHeight(40)),
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[
@@ -183,6 +262,113 @@ class _HomePageState extends State<HomePage> {
                       .toList())),
         ],
       )),
+    );
+  }
+
+  TextEditingController bugTextController = TextEditingController();
+  TextEditingController qiuPianTextController = TextEditingController();
+
+  showFeedbackDialog(int type) {
+    YYDialog().build(context)
+      ..width = MediaQuery.of(context).size.width * 0.6
+      ..borderRadius = 4.0
+      ..text(
+        padding: EdgeInsets.all(18.0),
+        text: type == 1 ? "问题反馈:" : "求片反馈",
+        color: Colors.grey[700],
+      )
+      ..widget(Container(
+        margin: EdgeInsets.all(20.0),
+        child: TextField(
+            controller: type == 1 ? bugTextController : qiuPianTextController,
+            keyboardType: TextInputType.multiline,
+            maxLines: 10,
+            minLines: 5,
+            decoration: const InputDecoration(
+              hintText: "内容描述请输入",
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              isDense: true,
+              border: const OutlineInputBorder(
+                gapPadding: 0,
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
+                borderSide: BorderSide(
+                  width: 1,
+                  style: BorderStyle.none,
+                ),
+              ),
+            )),
+      ))
+      ..divider()
+      ..doubleButton(
+        padding: EdgeInsets.only(top: 10.0),
+        gravity: Gravity.center,
+        withDivider: true,
+        text1: "取消",
+        fontSize1: 14.0,
+        fontWeight1: FontWeight.bold,
+        text2: "提交",
+        fontSize2: 14.0,
+        fontWeight2: FontWeight.bold,
+        onTap2: () {
+          if (bugTextController.text != "") {
+            http.post("http://sg-na-cn2.sakurafrp.com:57914/api/v1/feedback",
+                body: {
+                  "type": type.toString(),
+                  "content": bugTextController.text
+                });
+            Fluttertoast.showToast(
+                msg: "已提交",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Theme.of(context).accentColor,
+                textColor: Colors.white,
+                fontSize: 16.0);
+            bugTextController.clear();
+          }
+        },
+      )
+      ..show();
+  }
+
+  AboutDialog _buildAboutDialog() {
+    return AboutDialog(
+      applicationIcon: FlutterLogo(),
+      applicationVersion: 'v1.0.2',
+      applicationName: '淡白影视',
+      applicationLegalese: 'Copyright© 2020 淡白',
+      children: <Widget>[
+        Container(
+            margin: EdgeInsets.only(top: 10),
+            width: 60,
+            height: 60,
+            child: Image.asset('assets/img/ico.png')),
+        Container(
+            margin: EdgeInsets.only(top: 10),
+            alignment: Alignment.center,
+            child: Text(
+              '看你想看',
+              style: TextStyle(color: Colors.white, fontSize: 20, shadows: [
+                Shadow(
+                    color: Colors.blue, offset: Offset(.5, .5), blurRadius: 3)
+              ]),
+            )),
+        MaterialButton(
+            child: Text(
+              "作者博客",
+              style: TextStyle(color: Colors.blue),
+            ),
+            onPressed: () async {
+              const url = 'https://p00q.cn';
+              if (await canLaunch(url)) {
+                await launch(url);
+              } else {
+                throw 'Could not launch $url';
+              }
+            }),
+      ],
     );
   }
 }

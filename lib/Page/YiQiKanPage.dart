@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:flutter_page_tracker/flutter_page_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'MainPage.dart';
 
 class YiQiKanPage extends StatefulWidget {
@@ -93,13 +92,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
       Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
       SharedPreferences prefs = await _prefs;
       username = prefs.getString("UserNmae");
-      token = prefs.getString("Token");
-      var response = await http
-          .get("https://dbys.vip/api/v1/user?token=$token&username=$username");
-      var data = await jsonDecode(response.body);
-      if (data['data'] == null) {
-        prefs.remove("Token");
-        prefs.remove("UserNmae");
+      if (username == null) {
         iflogin = false;
         setState(() {});
       } else {
@@ -118,8 +111,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
             title: Text("一起看($online)"),
             centerTitle: true,
           ),
-          preferredSize:
-              Size.fromHeight(40),
+          preferredSize: Size.fromHeight(40),
         ),
         body: !iflogin
             ? Center(

@@ -1,10 +1,9 @@
 import 'package:dbys/Page/HomePage.dart';
-import 'package:dbys/Page/TestPage.dart';
+import 'package:dbys/Page/MePage.dart';
 import 'package:dbys/Page/YiQiKanPage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 import 'ClassificationPage.dart';
 
 class MainPage extends StatefulWidget {
@@ -19,21 +18,20 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   List<Widget> _controllerList;
+
   @override
   void initState() {
     super.initState();
-    UmengAnalyticsPlugin.pageStart("MainPage");
     _controllerList = [
       new HomePage(),
       new ClassificationPage(),
       new YiQiKanPage(),
-      new TestPage()
+      new MePage()
     ];
   }
 
   @override
   void dispose() {
-    UmengAnalyticsPlugin.pageEnd("MainPage");
     super.dispose();
   }
 

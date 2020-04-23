@@ -14,7 +14,7 @@ class ClassificationPage extends StatefulWidget {
 
 class _ClassificationPageState extends State<ClassificationPage> {
   List type1List = ['电影', '电视剧', '动漫', '综艺'];
-  List type2List = ['全部', '动作', '喜剧', '爱情', '科幻', '恐怖', '剧情', '战争'];
+  List type2List = ['全部', '动作', '喜剧', '爱情', '科幻', '恐怖', '剧情', '战争', '古装'];
   List regionList = [
     '全部',
     '国产',

@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 import 'package:video_player/video_player.dart';
 
 class YsPage extends StatefulWidget {
@@ -53,7 +52,6 @@ class _YsPageState extends State<YsPage> {
   void initState() {
     super.initState();
     init();
-    UmengAnalyticsPlugin.pageStart("YsPage");
   }
 
   @override
@@ -61,7 +59,6 @@ class _YsPageState extends State<YsPage> {
     _videoPlayerController.dispose();
     _chewieController.dispose();
     postTimer.cancel();
-    UmengAnalyticsPlugin.pageEnd("YsPage");
     super.dispose();
   }
 

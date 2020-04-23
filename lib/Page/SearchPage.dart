@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dbys/module/YsImg.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -21,7 +20,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    UmengAnalyticsPlugin.pageStart("SearchPage");
     scrollController.addListener(() {
       setState(() {
         if (scrollController.offset > 200 && scrollController.offset <= 250) {
@@ -59,7 +57,6 @@ class _SearchPageState extends State<SearchPage> {
   void dispose() {
     textController.dispose();
     scrollController.dispose();
-    UmengAnalyticsPlugin.pageEnd("SearchPage");
     super.dispose();
   }
 
@@ -93,9 +90,9 @@ class _SearchPageState extends State<SearchPage> {
                     suffix: textController.text == ""
                         ? null
                         : IconButton(
-                            icon: Icon(Icons.cancel,size: 15),
+                            icon: Icon(Icons.cancel, size: 15),
                             onPressed: () {
-                              textController.text="";
+                              textController.text = "";
                             },
                           ),
                   ),

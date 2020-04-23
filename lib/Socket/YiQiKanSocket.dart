@@ -20,41 +20,41 @@ class YiQiKanSocket {
   }
 
   static setRoomListInfoCallBack(var back) {
-      _roomListInfo = back;
+    _roomListInfo = back;
   }
 
   static setJoinCallBack(var back) {
-      _join = back;
+    _join = back;
   }
 
   static setRoomInfoCallBack(var back) {
-      _roomInfo = back;
+    _roomInfo = back;
   }
 
   static setSendChatCallBack(var back) {
-      _sendChat = back;
+    _sendChat = back;
   }
 
   static onMessage(msg) {
     var data = jsonDecode(msg);
     switch (data['type']) {
       case "info":
-        if(_roomListInfo!=null){
+        if (_roomListInfo != null) {
           _roomListInfo(data);
         }
         break;
       case "join":
-        if(_join!=null){
+        if (_join != null) {
           _join(data);
         }
         break;
       case "roomInfo":
-        if(_roomInfo!=null){
+        if (_roomInfo != null) {
           _roomInfo(data);
         }
         break;
       case "sendChat":
-        if(_sendChat!=null){
+        if (_sendChat != null) {
           _sendChat(data);
         }
         break;

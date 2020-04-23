@@ -1,16 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cdnbye/cdnbye.dart';
 import 'package:dbys/Page/LoginPage.dart';
 import 'package:dbys/Page/RegPage.dart';
 import 'package:dbys/Page/SearchPage.dart';
+import 'package:dbys/State/UserState.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_page_tracker/flutter_page_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'Page/MainPage.dart';
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 import 'package:flutter_xupdate/flutter_xupdate.dart';
 
 void main() => runApp(TrackerRouteObserverProvider(
@@ -55,17 +56,18 @@ class _BootAnimation extends State<BootAnimation>
   Color xzColor = Colors.black;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     //更新初始化
     initXUpdate();
-    FlutterXUpdate.checkUpdate(url: 'https://dbys.vip/api/v1/update-flutter', supportBackgroundUpdate: true);
+    FlutterXUpdate.checkUpdate(
+        url: 'https://dbys.vip/api/v1/update-flutter',
+        supportBackgroundUpdate: true);
     getSyData();
-    //友盟初始化
-    UmengAnalyticsPlugin.init(
-        androidKey: '5dd51f3e3fc1957eb5000c6c', channel: "flutter");
     //P2P初始化
     Cdnbye.init("_WJjufJZR", config: P2pConfig.byDefault());
+    //登录初始化
+    UserState.init();
     var duration = new Duration(seconds: 3); //定义一个三秒种的时间
     new Future.delayed(duration, () {
       //设置定时执行
@@ -129,42 +131,46 @@ class _BootAnimation extends State<BootAnimation>
 
   //获取首页数据并存储
   getSyData() async {
-    var response = await http.get("https://dbys.vip/sy");
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     SharedPreferences prefs = await _prefs;
+    var response = await http.get("https://dbys.vip/sy");
     prefs.setString("syData", response.body);
+    //获取公告
+    response = await http.get("https://dbys.vip/api/v1/gg");
+    var data = await jsonDecode(response.body);
+    prefs.setString("gg", data['data']);
   }
+
   ///更新初始化
   void initXUpdate() {
     if (Platform.isAndroid) {
       FlutterXUpdate.init(
 
-        ///是否输出日志
-          debug: true,
+              ///是否输出日志
+              debug: false,
 
-          ///是否使用post请求
-          isPost: false,
+              ///是否使用post请求
+              isPost: false,
 
-          ///post请求是否是上传json
-          isPostJson: false,
+              ///post请求是否是上传json
+              isPostJson: false,
 
-          ///是否开启WIFI
-          isWifiOnly: false,
+              ///是否开启WIFI
+              isWifiOnly: false,
 
-          ///是否开启自动模式
-          isAutoMode: false,
+              ///是否开启自动模式
+              isAutoMode: false,
 
-          ///需要设置的公共参数
-          supportSilentInstall: false,
+              ///需要设置的公共参数
+              supportSilentInstall: false,
 
-          ///在下载过程中，如果点击了取消的话，是否弹出切换下载方式的重试提示弹窗
-          enableRetry: false)
+              ///在下载过程中，如果点击了取消的话，是否弹出切换下载方式的重试提示弹窗
+              enableRetry: false)
           .then((value) {
         print("初始化成功: $value");
       }).catchError((error) {
         print(error);
       });
-
     } else {
       print("ios暂不支持XUpdate更新");
     }

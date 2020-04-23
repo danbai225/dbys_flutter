@@ -11,7 +11,6 @@ import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 import 'package:video_player/video_player.dart';
 
 class RoomPage extends StatefulWidget {
@@ -55,7 +54,6 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: tabs.length);
-    UmengAnalyticsPlugin.pageStart("RoomPage");
     init();
   }
 
@@ -158,7 +156,6 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
     _videoPlayerController.dispose();
     _chewieController.dispose();
     YiQiKanSocket.send(jsonEncode({"type": "exitRoom"}));
-    UmengAnalyticsPlugin.pageEnd("RoomPage");
   }
 
   @override
@@ -437,7 +434,8 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
   }
 
   showYsJiDialog(int id) async {
-    var response = await http.get("https://dbys.vip/api/v1/ys/" + id.toString());
+    var response =
+        await http.get("https://dbys.vip/api/v1/ys/" + id.toString());
     var json = await jsonDecode(response.body);
     playList = jsonDecode(json['data']['gkdz']);
     jiDialog = YYDialog().build(context)

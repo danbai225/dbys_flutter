@@ -45,11 +45,19 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "cn.p00q.dbys"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+//        ndk {
+//            //选择要添加的对应 cpu 类型的 .so 库。
+//            abiFilters "arm64-v8a","armeabi", "armeabi-v7a", "x86", "x86_64"
+//            // 还可以添加
+//        }
+       // 打包的时候注释掉defaultConfig中ndk的配置
+
     }
 
     signingConfigs {
@@ -66,7 +74,20 @@ android {
                 //关闭混淆
             minifyEnabled false //删除无用代码
             shrinkResources false //删除无用资源
-
+            ndk {
+                //选择要添加的对应 cpu 类型的 .so 库。
+//                abiFilters "armeabi-v7a"
+                abiFilters  "armeabi-v7a"
+                // 还可以添加 abiFilters "armeabi", "x86", "armeabi-v7a"
+            }
+        }
+        debug {
+            ndk {
+                //选择要添加的对应 cpu 类型的 .so 库。
+                 abiFilters "armeabi", "x86", "armeabi-v7a"
+            }
+            minifyEnabled false
+            signingConfig signingConfigs.release
         }
     }
 
