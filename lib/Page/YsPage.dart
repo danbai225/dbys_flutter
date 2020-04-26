@@ -3,15 +3,17 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cdnbye/cdnbye.dart';
 import 'package:chewie/chewie.dart';
+import 'package:dbys/module/CustomControls.dart';
 import 'package:dbys/module/Ysb.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 import 'package:video_player/video_player.dart';
+
+import 'Download/DownloadManagement.dart';
 
 class YsPage extends StatefulWidget {
   YsPage({this.id});
@@ -23,8 +25,8 @@ class YsPage extends StatefulWidget {
 }
 
 class _YsPageState extends State<YsPage> {
-  VideoPlayerController _videoPlayerController;
-  ChewieController _chewieController;
+  static VideoPlayerController _videoPlayerController;
+  static ChewieController _chewieController;
   Ysb ysb = new Ysb();
   List playList = [];
   String pNAME;
@@ -53,25 +55,23 @@ class _YsPageState extends State<YsPage> {
   void initState() {
     super.initState();
     init();
-    UmengAnalyticsPlugin.pageStart("YsPage");
   }
 
   @override
   void dispose() {
     _videoPlayerController.dispose();
     _chewieController.dispose();
+    _videoPlayerController=null;
+    _chewieController=null;
     postTimer.cancel();
-    UmengAnalyticsPlugin.pageEnd("YsPage");
     super.dispose();
   }
 
   init() async {
     //获取投屏设备
     getList();
-    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    SharedPreferences prefs = await _prefs;
-    username = prefs.getString("UserNmae");
-    token = prefs.getString("Token");
+    username = SpUtil.getString("UserNmae");
+    token = SpUtil.getString("Token");
     //获取影视数据
     var response = await http.get(
         "https://dbys.vip/api/v1/ysAndLs?id=${widget.id.toString()}&username=$username&token=$token");
@@ -110,8 +110,8 @@ class _YsPageState extends State<YsPage> {
         //更新长宽比
         if (_videoPlayerController.value.aspectRatio !=
             _chewieController.aspectRatio) {
-          print("长宽");
           _chewieController = ChewieController(
+            customControls: CustomControls(),
             allowedScreenSleep: false,
             videoPlayerController: _videoPlayerController,
             aspectRatio: _videoPlayerController.value.aspectRatio == 1.0
@@ -146,6 +146,7 @@ class _YsPageState extends State<YsPage> {
     url = await Cdnbye.parseStreamURL(url);
     _videoPlayerController = VideoPlayerController.network(url);
     _chewieController = ChewieController(
+        customControls: CustomControls(),
         allowedScreenSleep: false,
         videoPlayerController: _videoPlayerController,
         aspectRatio: 16 / 9,
@@ -153,6 +154,72 @@ class _YsPageState extends State<YsPage> {
         looping: true,
         startAt: startTime);
     setState(() {});
+  }
+
+  YYDialog jiDialog;
+  List downloadList = [];
+
+  void showMyDialogWithStateBuilder(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return new AlertDialog(
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () async {
+                  List downloads = SpUtil.getObjectList("downloads");
+                  if(downloads==null){
+                    downloads= new List();
+                  }
+                  downloadList.forEach((ys)=>{
+                    DownloadManagement.add(ys['url'],ysb.pm, ys['name'])
+                  });
+                  Fluttertoast.showToast(
+                      msg: "已经添加到下载列表:共${downloadList.length}集",
+                      toastLength:
+                      Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor:
+                      Theme.of(context)
+                          .accentColor,
+                      textColor: Colors.white,
+                      fontSize: 16.0);
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                child: new Text("确定"),
+              ),
+            ],
+            title: new Text("选择需要缓存的集:"),
+            content: Container(
+                height: 400,
+                child:
+                    StatefulBuilder(builder: (context, StateSetter setState) {
+                  return SingleChildScrollView(
+                      child: Center(
+                    child: Wrap(
+                        children: playList
+                            .map((ys) => MaterialButton(
+                                  height: 40,
+                                  elevation: 5,
+                                  color: downloadList.contains(ys)
+                                      ? Colors.red
+                                      : Theme.of(context).accentColor,
+                                  textColor: Colors.white,
+                                  child: Text(ys['name']),
+                                  onPressed: () {
+                                    if (downloadList.contains(ys)) {
+                                      downloadList.remove(ys);
+                                    } else {
+                                      downloadList.add(ys);
+                                    }
+                                    setState(() {});
+                                  },
+                                ))
+                            .toList()),
+                  ));
+                })),
+          );
+        });
   }
 
   Widget build(BuildContext context) {
@@ -163,6 +230,17 @@ class _YsPageState extends State<YsPage> {
     return Scaffold(
         appBar: PreferredSize(
             child: AppBar(
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.save_alt),
+                    // 如果有抽屉的话的就打开
+                    onPressed: () {
+                      showMyDialogWithStateBuilder(context);
+                    },
+                    // 显示描述信息
+                    tooltip: "缓存",
+                  )
+                ],
                 centerTitle: true,
                 title: Text(ysb.pm == null ? "" : ysb.pm),
                 leading: Builder(

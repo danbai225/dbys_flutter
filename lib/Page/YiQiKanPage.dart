@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:dbys/Page/YiQIkan/RoomPage.dart';
 import 'package:dbys/Socket/YiQiKanSocket.dart';
+import 'package:dbys/State/UserState.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:flutter_page_tracker/flutter_page_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'MainPage.dart';
 
 class YiQiKanPage extends StatefulWidget {
@@ -18,7 +18,6 @@ class YiQiKanPage extends StatefulWidget {
 
 class _YiQiKanPageState extends State<YiQiKanPage>
     with PageTrackerAware, TrackerPageMixin {
-  bool iflogin = false;
   String username;
   String token;
   TimerUtil t; //房间定时器
@@ -37,21 +36,22 @@ class _YiQiKanPageState extends State<YiQiKanPage>
     t = TimerUtil();
     t.setInterval(1000);
     t.setOnTimerTickCallback((int tick) {
-      if (MainPage.index == 2) {
+      if (UserState.ifLogin&&!YiQiKanSocket.onConn) {
+        conn();
+      }
+      if (MainPage.index == 2 && UserState.ifLogin&&YiQiKanSocket.onConn) {
         YiQiKanSocket.send(jsonEncode({'type': 'info'}));
       }
-    });
-    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    SharedPreferences prefs = await _prefs;
-    username = prefs.getString("UserNmae");
-    if (username != null) {
-      iflogin = true;
       setState(() {});
+    });
+    //登录就连接
+    if (UserState.ifLogin) {
+      conn();
     }
   }
 
   void conn() {
-    YiQiKanSocket.conn(username);
+    YiQiKanSocket.conn();
     YiQiKanSocket.setRoomListInfoCallBack(roomInfo);
     YiQiKanSocket.setJoinCallBack(join);
     t.startTimer();
@@ -72,8 +72,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
   @override
   void didPageView() {
     super.didPageView();
-    getIfLogin();
-    if (!t.isActive()) {
+    if (t!=null&&!t.isActive()) {
       t.startTimer();
     }
     // 发送页面露出事件
@@ -83,30 +82,8 @@ class _YiQiKanPageState extends State<YiQiKanPage>
   void didPageExit() {
     super.didPageExit();
     // 发送页面离开事件
-    if (t.isActive()) {
+    if (t!=null&&t.isActive()) {
       t.cancel();
-    }
-  }
-
-  void getIfLogin() async {
-    if (!iflogin) {
-      Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-      SharedPreferences prefs = await _prefs;
-      username = prefs.getString("UserNmae");
-      token = prefs.getString("Token");
-      var response = await http
-          .get("https://dbys.vip/api/v1/user?token=$token&username=$username");
-      var data = await jsonDecode(response.body);
-      if (data['data'] == null) {
-        prefs.remove("Token");
-        prefs.remove("UserNmae");
-        iflogin = false;
-        setState(() {});
-      } else {
-        conn();
-        iflogin = true;
-        setState(() {});
-      }
     }
   }
 
@@ -118,10 +95,9 @@ class _YiQiKanPageState extends State<YiQiKanPage>
             title: Text("一起看($online)"),
             centerTitle: true,
           ),
-          preferredSize:
-              Size.fromHeight(40),
+          preferredSize: Size.fromHeight(40),
         ),
-        body: !iflogin
+        body: !UserState.ifLogin
             ? Center(
                 child: Container(
                     height: 200,
@@ -178,7 +154,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
                   ),
                 ),
               ),
-        floatingActionButton: !iflogin
+        floatingActionButton: !UserState.ifLogin
             ? null
             : FloatingActionButton(
                 heroTag: "yiqikan",
@@ -267,21 +243,6 @@ class _YiQiKanPageState extends State<YiQiKanPage>
           )
         ],
       ))
-      ..divider()
-      ..doubleButton(
-        padding: EdgeInsets.only(top: 10.0),
-        gravity: Gravity.center,
-        withDivider: true,
-        text1: "取消",
-        fontSize1: 14.0,
-        fontWeight1: FontWeight.bold,
-        text2: "确定",
-        fontSize2: 14.0,
-        fontWeight2: FontWeight.bold,
-        onTap2: () {
-          sendNewRoom(_nameController.text, _passController.text);
-        },
-      )
       ..show();
   }
 

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
+import 'package:dbys/State/UserState.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 
 class RegPage extends StatefulWidget {
   @override
@@ -27,12 +27,10 @@ class _RegPagePageState extends State<RegPage> {
   @override
   void initState() {
     super.initState();
-    UmengAnalyticsPlugin.pageStart("RegPage");
   }
 
   @override
   void dispose() {
-    UmengAnalyticsPlugin.pageEnd("RegPage");
     super.dispose();
   }
 
@@ -185,6 +183,7 @@ class _RegPagePageState extends State<RegPage> {
           //登陆成功
           prefs.setString("UserNmae", data['data']['username']);
           prefs.setString("Token", data['data']['token']);
+          UserState.init();
         }
         var duration = new Duration(seconds: 1); //定义一个3秒种的时间
         new Future.delayed(duration, () {

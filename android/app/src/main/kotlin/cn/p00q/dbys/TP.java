@@ -19,6 +19,7 @@ public class TP {
     private static List<ClingDevice> clingDevices;
     private static RemoteItem remoteItem;
     public static void ini(){
+        clingDevices=new ArrayList<ClingDevice>();
         ClingManager.getInstance().startClingService();
         clingDevices = DeviceManager.getInstance().getClingDeviceList();
     }

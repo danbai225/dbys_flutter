@@ -1,18 +1,18 @@
 import 'dart:convert';
 import 'package:better_socket/better_socket.dart';
+import 'package:dbys/State/UserState.dart';
 
 class YiQiKanSocket {
   YiQiKanSocket._internal();
 
   static YiQiKanSocket _yiQiKanSocket;
-  static String _username;
 
   //消息回调
   static var _roomListInfo;
   static var _join;
   static var _roomInfo;
   static var _sendChat;
-
+  static bool onConn=false;
   static send(String msg) {
     if (msg.isNotEmpty) {
       BetterSocket.sendMsg(msg);
@@ -20,69 +20,75 @@ class YiQiKanSocket {
   }
 
   static setRoomListInfoCallBack(var back) {
-      _roomListInfo = back;
+    _roomListInfo = back;
   }
 
   static setJoinCallBack(var back) {
-      _join = back;
+    _join = back;
   }
 
   static setRoomInfoCallBack(var back) {
-      _roomInfo = back;
+    _roomInfo = back;
   }
 
   static setSendChatCallBack(var back) {
-      _sendChat = back;
+    _sendChat = back;
   }
 
   static onMessage(msg) {
     var data = jsonDecode(msg);
     switch (data['type']) {
       case "info":
-        if(_roomListInfo!=null){
+        if (_roomListInfo != null) {
           _roomListInfo(data);
         }
         break;
       case "join":
-        if(_join!=null){
+        if (_join != null) {
           _join(data);
         }
         break;
       case "roomInfo":
-        if(_roomInfo!=null){
+        if (_roomInfo != null) {
           _roomInfo(data);
         }
         break;
       case "sendChat":
-        if(_sendChat!=null){
+        if (_sendChat != null) {
           _sendChat(data);
         }
         break;
     }
   }
 
-  static conn(String username) {
-    _username = username;
-    BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/$_username",
-        trustAllHost: true);
-    BetterSocket.addListener(
-        onOpen: (httpStatus, httpStatusMessage) {
-          print(
-              "onOpen---httpStatus:$httpStatus  httpStatusMessage:$httpStatusMessage");
-        },
-        onMessage: onMessage,
-        onClose: onClose,
-        onError: onError);
+  static conn() {
+    if(UserState.ifLogin&&onConn==false) {
+      BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/${UserState.username}",
+          trustAllHost: true);
+      BetterSocket.addListener(
+          onOpen: (httpStatus, httpStatusMessage) {
+            print(
+                "onOpen---httpStatus:$httpStatus  httpStatusMessage:$httpStatusMessage");
+          },
+          onMessage: onMessage,
+          onClose: onClose,
+          onError: onError);
+      onConn=true;
+    }
   }
 
   static onClose(code, reason, remote) {
+    if(code!=1000){
+      BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/${UserState.username}",
+          trustAllHost: true);
+    }
     print("onClose---code:$code  reason:$reason  remote:$remote");
-    BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/$_username",
-        trustAllHost: true);
   }
 
   static onError(message) {
     print("onErrorSokcet");
+    BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/${UserState.username}",
+        trustAllHost: true);
   }
 
   static YiQiKanSocket getYiQiKanSocket() {
@@ -94,6 +100,7 @@ class YiQiKanSocket {
   }
 
   static close() {
+    onConn=false;
     BetterSocket.close();
   }
 }

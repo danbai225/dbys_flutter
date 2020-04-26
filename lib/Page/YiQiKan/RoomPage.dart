@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:dbys/module/CustomControls.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,7 +12,6 @@ import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 import 'package:video_player/video_player.dart';
 
 class RoomPage extends StatefulWidget {
@@ -34,8 +34,8 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
   double time;
   TimerUtil t; //房间定时器
   String username;
-  VideoPlayerController _videoPlayerController;
-  ChewieController _chewieController;
+  static VideoPlayerController _videoPlayerController;
+  static ChewieController _chewieController;
   final tabs = ['聊天', '在线用户', '选择影视', '语音设置'];
   TabController _tabController;
   List chatList = []; //聊天消息列表
@@ -55,7 +55,6 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: tabs.length);
-    UmengAnalyticsPlugin.pageStart("RoomPage");
     init();
   }
 
@@ -67,6 +66,7 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
     url = await Cdnbye.parseStreamURL(url);
     _videoPlayerController = VideoPlayerController.network(url);
     _chewieController = ChewieController(
+      customControls: CustomControls(),
       allowedScreenSleep: false,
       videoPlayerController: _videoPlayerController,
       aspectRatio: 16 / 9,
@@ -76,6 +76,7 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
     const timeout = const Duration(seconds: 10);
     Timer(timeout, () {
       _chewieController = ChewieController(
+        customControls: CustomControls(),
         allowedScreenSleep: false,
         videoPlayerController: _videoPlayerController,
         aspectRatio: _videoPlayerController.value.aspectRatio == 1.0
@@ -157,8 +158,9 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
     t.cancel();
     _videoPlayerController.dispose();
     _chewieController.dispose();
+    _videoPlayerController=null;
+    _chewieController=null;
     YiQiKanSocket.send(jsonEncode({"type": "exitRoom"}));
-    UmengAnalyticsPlugin.pageEnd("RoomPage");
   }
 
   @override
@@ -437,7 +439,8 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
   }
 
   showYsJiDialog(int id) async {
-    var response = await http.get("https://dbys.vip/api/v1/ys/" + id.toString());
+    var response =
+        await http.get("https://dbys.vip/api/v1/ys/" + id.toString());
     var json = await jsonDecode(response.body);
     playList = jsonDecode(json['data']['gkdz']);
     jiDialog = YYDialog().build(context)
@@ -467,6 +470,21 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
                               },
                             ))
                         .toList()))),
+      )
+      ..divider()
+      ..doubleButton(
+        padding: EdgeInsets.only(top: 10.0),
+        gravity: Gravity.center,
+        withDivider: true,
+        text1: "取消",
+        fontSize1: 14.0,
+        fontWeight1: FontWeight.bold,
+        text2: "确定",
+        fontSize2: 14.0,
+        fontWeight2: FontWeight.bold,
+        onTap2: () {
+
+        },
       )
       ..show();
   }
@@ -535,16 +553,5 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
       });
     };
 
-    AgoraRtcEngine.onFirstRemoteVideoFrame = (
-      int uid,
-      int width,
-      int height,
-      int elapsed,
-    ) {
-      setState(() {
-        final info = 'firstRemoteVideo: $uid ${width}x $height';
-        print("YuYin-" + info);
-      });
-    };
   }
 }

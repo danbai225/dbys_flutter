@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'package:dbys/State/UserState.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:umeng_analytics_plugin/umeng_analytics_plugin.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -21,13 +21,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     ini();
-    UmengAnalyticsPlugin.pageStart("LoginPage");
     super.initState();
   }
 
   @override
   void dispose() {
-    UmengAnalyticsPlugin.pageEnd("LoginPage");
     super.dispose();
   }
 
@@ -129,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
         //登陆成功
         prefs.setString("UserNmae", data['data']['username']);
         prefs.setString("Token", data['data']['token']);
+        UserState.init();
         showDialog(true);
         var duration = new Duration(seconds: 1);
         new Future.delayed(duration, () {
