@@ -158,8 +158,8 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
     t.cancel();
     _videoPlayerController.dispose();
     _chewieController.dispose();
-    _videoPlayerController=null;
-    _chewieController=null;
+    _videoPlayerController = null;
+    _chewieController = null;
     YiQiKanSocket.send(jsonEncode({"type": "exitRoom"}));
   }
 
@@ -482,9 +482,7 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
         text2: "确定",
         fontSize2: 14.0,
         fontWeight2: FontWeight.bold,
-        onTap2: () {
-
-        },
+        onTap2: () {},
       )
       ..show();
   }
@@ -552,6 +550,5 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
         _usersYuYin.remove(uid);
       });
     };
-
   }
 }

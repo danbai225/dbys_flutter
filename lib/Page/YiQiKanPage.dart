@@ -36,10 +36,10 @@ class _YiQiKanPageState extends State<YiQiKanPage>
     t = TimerUtil();
     t.setInterval(1000);
     t.setOnTimerTickCallback((int tick) {
-      if (UserState.ifLogin&&!YiQiKanSocket.onConn) {
+      if (UserState.ifLogin && !YiQiKanSocket.onConn) {
         conn();
       }
-      if (MainPage.index == 2 && UserState.ifLogin&&YiQiKanSocket.onConn) {
+      if (MainPage.index == 2 && UserState.ifLogin && YiQiKanSocket.onConn) {
         YiQiKanSocket.send(jsonEncode({'type': 'info'}));
       }
       setState(() {});
@@ -72,7 +72,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
   @override
   void didPageView() {
     super.didPageView();
-    if (t!=null&&!t.isActive()) {
+    if (t != null && !t.isActive()) {
       t.startTimer();
     }
     // 发送页面露出事件
@@ -82,7 +82,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
   void didPageExit() {
     super.didPageExit();
     // 发送页面离开事件
-    if (t!=null&&t.isActive()) {
+    if (t != null && t.isActive()) {
       t.cancel();
     }
   }

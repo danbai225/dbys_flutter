@@ -61,8 +61,8 @@ class _YsPageState extends State<YsPage> {
   void dispose() {
     _videoPlayerController.dispose();
     _chewieController.dispose();
-    _videoPlayerController=null;
-    _chewieController=null;
+    _videoPlayerController = null;
+    _chewieController = null;
     postTimer.cancel();
     super.dispose();
   }
@@ -168,20 +168,16 @@ class _YsPageState extends State<YsPage> {
               new FlatButton(
                 onPressed: () async {
                   List downloads = SpUtil.getObjectList("downloads");
-                  if(downloads==null){
-                    downloads= new List();
+                  if (downloads == null) {
+                    downloads = new List();
                   }
-                  downloadList.forEach((ys)=>{
-                    DownloadManagement.add(ys['url'],ysb.pm, ys['name'])
-                  });
+                  downloadList.forEach((ys) =>
+                      {DownloadManagement.add(ys['url'], ysb.pm, ys['name'])});
                   Fluttertoast.showToast(
                       msg: "已经添加到下载列表:共${downloadList.length}集",
-                      toastLength:
-                      Toast.LENGTH_SHORT,
+                      toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
-                      backgroundColor:
-                      Theme.of(context)
-                          .accentColor,
+                      backgroundColor: Theme.of(context).accentColor,
                       textColor: Colors.white,
                       fontSize: 16.0);
                   Navigator.of(context, rootNavigator: true).pop();

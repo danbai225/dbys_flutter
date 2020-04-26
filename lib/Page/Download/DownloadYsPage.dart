@@ -29,8 +29,9 @@ class _DownloadYsState extends State<DownloadYsPage> {
   String xzSuDu;
   bool isCancel = false;
   List yss = [];
-  bool delete=false;
+  bool delete = false;
   String palyerUrl;
+
   @override
   void initState() {
     super.initState();
@@ -149,25 +150,20 @@ class _DownloadYsState extends State<DownloadYsPage> {
               title: Text("下载管理"),
               actions: <Widget>[
                 IconButton(
-                  color: delete?Colors.red:Colors.black,
+                  color: delete ? Colors.red : Colors.black,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    delete=!delete;
-                    if(delete){
+                    delete = !delete;
+                    if (delete) {
                       Fluttertoast.showToast(
                           msg: "点击需要删除的集",
-                          toastLength:
-                          Toast.LENGTH_SHORT,
+                          toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
-                          backgroundColor:
-                          Theme.of(context)
-                              .accentColor,
+                          backgroundColor: Theme.of(context).accentColor,
                           textColor: Colors.red,
                           fontSize: 16.0);
                     }
-                    setState(() {
-
-                    });
+                    setState(() {});
                   },
                   // 显示描述信息
                   tooltip: "删除",
@@ -248,39 +244,41 @@ class _DownloadYsState extends State<DownloadYsPage> {
   List<Widget> fenJi(List jis) {
     return jis
         .map((j) => MaterialButton(
-            color: delete?Colors.red:palyerUrl==j['path']?Colors.blue:Colors.blueGrey,
+            color: delete
+                ? Colors.red
+                : palyerUrl == j['path'] ? Colors.blue : Colors.blueGrey,
             child: Text(
               j['name'],
             ),
             onPressed: () {
-              if(delete){
+              if (delete) {
                 deleteYs(j['path']);
                 addYS();
-              }else{
-                palyerUrl=j['path'];
+              } else {
+                palyerUrl = j['path'];
                 _loadVideo(j['path']);
               }
-              setState(() {
-              });
+              setState(() {});
             }))
         .toList();
   }
-  deleteYs(String path){
+
+  deleteYs(String path) {
     print(path);
-    String dpath=path.substring(0,path.lastIndexOf('/'));
+    String dpath = path.substring(0, path.lastIndexOf('/'));
     Directory directory = new Directory(dpath);
     if (directory.existsSync()) {
       List<FileSystemEntity> files = directory.listSync();
       if (files.length > 0) {
         files.forEach((file) {
           print(file.path);
-          if(path==file.path){
+          if (path == file.path) {
             file.deleteSync();
           }
         });
       }
-       files = directory.listSync();
-      if(files.length==0){
+      files = directory.listSync();
+      if (files.length == 0) {
         directory.deleteSync();
       }
     }

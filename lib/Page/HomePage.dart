@@ -21,7 +21,8 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>  with PageTrackerAware, TrackerPageMixin{
+class _HomePageState extends State<HomePage>
+    with PageTrackerAware, TrackerPageMixin {
   List tuiJianYs = [];
   List dyList = [];
   List dsjList = [];
@@ -34,11 +35,11 @@ class _HomePageState extends State<HomePage>  with PageTrackerAware, TrackerPage
     super.initState();
     fetchData();
   }
+
   @override
   void didPageView() {
     super.didPageView();
-    setState(() {
-    });
+    setState(() {});
     // 发送页面露出事件
   }
 
@@ -47,6 +48,7 @@ class _HomePageState extends State<HomePage>  with PageTrackerAware, TrackerPage
     super.didPageExit();
     // 发送页面离开事件
   }
+
   fetchData() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     String syData = _prefs.getString("syData");
@@ -134,8 +136,7 @@ class _HomePageState extends State<HomePage>  with PageTrackerAware, TrackerPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DownloadYsPage(
-                    ),
+                    builder: (context) => DownloadYsPage(),
                   ),
                 );
               },
@@ -344,11 +345,10 @@ class _HomePageState extends State<HomePage>  with PageTrackerAware, TrackerPage
         fontWeight2: FontWeight.bold,
         onTap2: () {
           if (bugTextController.text != "") {
-            http.post("https://dbys.vip/api/v1/feedback",
-                body: {
-                  "type": type.toString(),
-                  "content": bugTextController.text
-                });
+            http.post("https://dbys.vip/api/v1/feedback", body: {
+              "type": type.toString(),
+              "content": bugTextController.text
+            });
             Fluttertoast.showToast(
                 msg: "已提交",
                 toastLength: Toast.LENGTH_SHORT,
