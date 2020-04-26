@@ -4,9 +4,9 @@
 
 # 淡白影视安卓端
 
-![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.0.1-blue)
+![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.0.3-blue)
 
-[下载地址](https://danbai-cloud.oss-cn-chengdu.aliyuncs.com/uploads%2F2020%2F04%2F23%2F%E6%B7%A1%E7%99%BD%E5%BD%B1%E8%A7%86V1.0.2.apk)
+[下载地址](https://danbai-cloud.oss-cn-chengdu.aliyuncs.com/uploads%2F2020%2F04%2F27%2F%E6%B7%A1%E7%99%BD%E5%BD%B1%E8%A7%86V1.0.3.apk)
 
 ## 功能特性
 
@@ -52,3 +52,9 @@
 + 反馈功能
 + 其他bug
 + 闪退问题
+
+### 2020-4-27
+
++ 缓存下载
++ 优化代码
++ 手势操作播放器
