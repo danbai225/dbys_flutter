@@ -220,6 +220,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
                 ),
                 onEditingComplete: () {
                   sendNewRoom(_nameController.text, _passController.text);
+                  _nameController.text = "";
                 },
               ),
             ),
@@ -237,12 +238,29 @@ class _YiQiKanPageState extends State<YiQiKanPage>
                 ),
                 onEditingComplete: () {
                   sendNewRoom(_nameController.text, _passController.text);
+                  _nameController.text = "";
                 },
               ),
             ),
           )
         ],
       ))
+      ..divider()
+      ..doubleButton(
+        padding: EdgeInsets.only(top: 10.0),
+        gravity: Gravity.center,
+        withDivider: true,
+        text1: "取消",
+        fontSize1: 14.0,
+        fontWeight1: FontWeight.bold,
+        text2: "确定",
+        fontSize2: 14.0,
+        fontWeight2: FontWeight.bold,
+        onTap2: () {
+          sendNewRoom(_nameController.text, _passController.text);
+          _nameController.text = "";
+        },
+      )
       ..show();
   }
 

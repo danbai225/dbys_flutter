@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
 
 import 'Download/DownloadManagement.dart';
@@ -167,6 +168,7 @@ class _YsPageState extends State<YsPage> {
             actions: <Widget>[
               new FlatButton(
                 onPressed: () async {
+                  Permission.storage.request();
                   List downloads = SpUtil.getObjectList("downloads");
                   if (downloads == null) {
                     downloads = new List();
