@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:dbys/State/UserState.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
@@ -31,8 +31,7 @@ class _LoginPageState extends State<LoginPage> {
 
   ini() async {
     // 自动填充上次登录的用户名，填充后将焦点定位到密码输入框
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    String lastUsername = _prefs.getString("LastUsername");
+    String lastUsername = SpUtil.getString("LastUsername");
     _unameController.text = lastUsername;
     if (_unameController.text != null) {
       _nameAutoFocus = false;
@@ -62,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     // 校验用户名（不能为空）
                     validator: (v) {
-                      return v.trim().isNotEmpty ? null : '用户名不能为空';
+                      return v.trim().isNotEmpty ? RegexUtil.matches("^[\u4e00-\u9fa5_a-zA-Z0-9]+\$",v)?null:"不能有符号" : '用户名不能为空';
                     }),
                 TextFormField(
                   controller: _pwdController,
@@ -107,9 +106,7 @@ class _LoginPageState extends State<LoginPage> {
   void _onLogin() async {
     // 提交前，先验证各个表单字段是否合法
     if ((_formKey.currentState as FormState).validate()) {
-      Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-      SharedPreferences prefs = await _prefs;
-      prefs.setString("LastUsername", _unameController.text);
+      SpUtil.putString("LastUsername", _unameController.text);
       var response = await http.post("https://dbys.vip/api/v1/token", body: {
         'username': _unameController.text,
         'password': _pwdController.text
@@ -125,8 +122,8 @@ class _LoginPageState extends State<LoginPage> {
         });
       } else {
         //登陆成功
-        prefs.setString("UserNmae", data['data']['username']);
-        prefs.setString("Token", data['data']['token']);
+        SpUtil.putString("UserNmae", data['data']['username']);
+        SpUtil.putString("Token", data['data']['token']);
         UserState.init();
         showDialog(true);
         var duration = new Duration(seconds: 1);

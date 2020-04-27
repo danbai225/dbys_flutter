@@ -26,8 +26,8 @@ class YsPage extends StatefulWidget {
 }
 
 class _YsPageState extends State<YsPage> {
-  static VideoPlayerController _videoPlayerController;
-  static ChewieController _chewieController;
+  VideoPlayerController _videoPlayerController;
+  ChewieController _chewieController;
   Ysb ysb = new Ysb();
   List playList = [];
   String pNAME;
@@ -36,6 +36,9 @@ class _YsPageState extends State<YsPage> {
   TimerUtil postTimer;
   List tvs = [];
   int tpIndex;
+  Duration startTime;
+  YYDialog jiDialog;
+  List downloadList = [];
 
   //与原生交互的通道
   static const platform = const MethodChannel('cn.p00q.dbys/tp');
@@ -59,13 +62,16 @@ class _YsPageState extends State<YsPage> {
   }
 
   @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController.dispose();
-    _videoPlayerController = null;
-    _chewieController = null;
-    postTimer.cancel();
+  dispose() {
     super.dispose();
+    if(_videoPlayerController!=null){
+      _videoPlayerController.dispose();
+      _chewieController.dispose();
+      _videoPlayerController = null;
+      _chewieController = null;
+    }
+    postTimer.cancel();
+    postTimer = null;
   }
 
   init() async {
@@ -84,12 +90,11 @@ class _YsPageState extends State<YsPage> {
     //是否有观看历史
     if (json['data']['time'] != null) {
       pNAME = json['data']['gkls']['jiname'];
-
-      _loadVideo(json['data']['gkls']['url'],
-          Duration(seconds: json['data']['time'].toInt()));
+      startTime = Duration(seconds: json['data']['time'].toInt());
+      _loadVideo(json['data']['gkls']['url']);
     } else {
       pNAME = playList[0]['name'];
-      _loadVideo(playList[0]['url'], null);
+      _loadVideo(playList[0]['url']);
     }
     //定时器 定时发送观看时间
     postTimer = TimerUtil();
@@ -108,33 +113,28 @@ class _YsPageState extends State<YsPage> {
             "token": token
           });
         }
-        //更新长宽比
-        if (_videoPlayerController.value.aspectRatio !=
-            _chewieController.aspectRatio) {
-          _chewieController = ChewieController(
-            customControls: CustomControls(),
-            allowedScreenSleep: false,
-            videoPlayerController: _videoPlayerController,
-            aspectRatio: _videoPlayerController.value.aspectRatio == 1.0
-                ? 16 / 9
-                : _videoPlayerController.value.aspectRatio,
-            autoPlay: true,
-            looping: true,
-          );
-          setState(() {});
-        }
       }
     });
     postTimer.startTimer();
     setState(() {});
   }
 
-  //加载视频
-  _loadVideo(String url, Duration startTime) async {
-    //是否有视频有就释放
-    if (_videoPlayerController != null) {
-      _videoPlayerController.pause();
-    }
+  _initController(String link) {
+    _videoPlayerController = VideoPlayerController.network(link)
+      ..initialize().then((_) {
+        _chewieController = ChewieController(
+            customControls: CustomControls(),
+            allowedScreenSleep: false,
+            videoPlayerController: _videoPlayerController,
+            aspectRatio: _videoPlayerController.value.aspectRatio,
+            autoPlay: true,
+            looping: true,
+            startAt: startTime);
+        setState(() {});
+      });
+  }
+
+  getStartTime() async {
     if (username != null && startTime == null) {
       var response = await http.post("https://dbys.vip/ys/gettime", body: {
         "ysid": widget.id.toString(),
@@ -142,23 +142,48 @@ class _YsPageState extends State<YsPage> {
         "ysjiname": pNAME
       });
       startTime = Duration(seconds: double.parse(response.body).toInt());
+      //初始化已经完成则更新
+      if (_videoPlayerController.value.isPlaying) {
+        _chewieController = ChewieController(
+            customControls: CustomControls(),
+            allowedScreenSleep: false,
+            videoPlayerController: _videoPlayerController,
+            aspectRatio: _videoPlayerController.value.aspectRatio,
+            autoPlay: true,
+            looping: true,
+            startAt: startTime);
+        setState(() {});
+      }
     }
-    //初始化视频播放
-    url = await Cdnbye.parseStreamURL(url);
-    _videoPlayerController = VideoPlayerController.network(url);
-    _chewieController = ChewieController(
-        customControls: CustomControls(),
-        allowedScreenSleep: false,
-        videoPlayerController: _videoPlayerController,
-        aspectRatio: 16 / 9,
-        autoPlay: true,
-        looping: true,
-        startAt: startTime);
-    setState(() {});
   }
 
-  YYDialog jiDialog;
-  List downloadList = [];
+  //加载视频
+  _loadVideo(String url) async {
+    getStartTime();
+    Fluttertoast.showToast(
+        msg: "视频加载中请稍后",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Theme.of(context).accentColor,
+        textColor: Colors.white,
+        fontSize: 16.0);
+    url = await Cdnbye.parseStreamURL(url);
+    if (_videoPlayerController == null) {
+      // If there was no controller, just create a new one
+      _initController(url);
+    } else {
+      // If there was a controller, we need to dispose of the old one first
+      final oldController = _videoPlayerController;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await oldController.dispose();
+      });
+      // Making sure that controller is not used by setting it to null
+      setState(() {
+        _videoPlayerController = null;
+        _initController(url);
+      });
+    }
+  }
 
   void showMyDialogWithStateBuilder(BuildContext context) {
     showDialog(
@@ -256,11 +281,13 @@ class _YsPageState extends State<YsPage> {
         body: Column(
           children: <Widget>[
             Container(
-              child: _chewieController == null
-                  ? null
-                  : Chewie(
+              child: _videoPlayerController != null &&
+                      _chewieController != null &&
+                      _videoPlayerController.value.initialized
+                  ? Chewie(
                       controller: _chewieController,
-                    ),
+                    )
+                  : null,
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -482,8 +509,10 @@ class _YsPageState extends State<YsPage> {
                                   textColor: Colors.white,
                                   child: Text(ys['name']),
                                   onPressed: () => {
+                                    startTime = null,
                                     pNAME = ys['name'],
-                                    _loadVideo(ys['url'], null)
+                                    _loadVideo(ys['url']),
+                                    setState(() {})
                                   },
                                 ))
                             .toList()),

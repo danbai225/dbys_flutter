@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:dbys/Page/Download/DownloadYsPage.dart';
-import 'package:dbys/Socket/YiQiKanSocket.dart';
+import 'package:dbys/Page/TvPage.dart';
 import 'package:dbys/State/UserState.dart';
 import 'package:dbys/module/YsImg.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:flutter_page_tracker/flutter_page_tracker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
@@ -50,13 +50,12 @@ class _HomePageState extends State<HomePage>
   }
 
   fetchData() async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    String syData = _prefs.getString("syData");
-    gg = _prefs.getString("gg");
+    String syData = SpUtil.getString("syData");
+    gg = SpUtil.getString("gg");
     var data;
-    if (syData != null) {
+    if (syData != "") {
       data = await jsonDecode(syData);
-      _prefs.remove("syData");
+      SpUtil.remove("syData");
     } else {
       // 请求接口
       var response = await http.get("https://dbys.vip/sy");
@@ -119,12 +118,16 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           ListTile(
-            leading: Icon(Icons.info),
+            leading: Icon(Icons.tv),
             title: MaterialButton(
-              child: Text("关于APP"),
+              child: Text("电视直播"),
               onPressed: () {
-                showDialog(
-                    context: context, builder: (ctx) => _buildAboutDialog());
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TvPage(),
+                  ),
+                );
               },
             ),
           ),
@@ -159,7 +162,17 @@ class _HomePageState extends State<HomePage>
                       onPressed: () {
                         Navigator.of(this.context).pushNamed("/LoginPage");
                       }),
-                )
+                ),
+          ListTile(
+            leading: Icon(Icons.info),
+            title: MaterialButton(
+              child: Text("关于APP"),
+              onPressed: () {
+                showDialog(
+                    context: context, builder: (ctx) => _buildAboutDialog());
+              },
+            ),
+          )
         ],
       )),
       appBar: PreferredSize(
@@ -366,7 +379,7 @@ class _HomePageState extends State<HomePage>
   AboutDialog _buildAboutDialog() {
     return AboutDialog(
       applicationIcon: FlutterLogo(),
-      applicationVersion: 'v1.0.3',
+      applicationVersion: 'v1.0.4',
       applicationName: '淡白影视',
       applicationLegalese: 'Copyright© 2020 淡白',
       children: <Widget>[

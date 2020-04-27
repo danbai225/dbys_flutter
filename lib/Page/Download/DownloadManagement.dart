@@ -23,4 +23,9 @@ class DownloadManagement {
   static cancel() {
     platform.invokeMethod('Cancel');
   }
+
+  //关掉udp
+  static removeBind() {
+    platform.invokeMethod('removeBind');
+  }
 }

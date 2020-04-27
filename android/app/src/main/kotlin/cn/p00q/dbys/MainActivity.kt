@@ -39,6 +39,9 @@ class MainActivity: FlutterActivity() {
                         if (call.method.contentEquals("Path")) {
                             M3U8Download.setPath(call.arguments.toString())
                         }
+                        if (call.method.contentEquals("removeBind")) {
+                            M3U8Download.socket.close()
+                        }
                     }
                 }
         )

@@ -6,7 +6,6 @@ class YiQiKanSocket {
   YiQiKanSocket._internal();
 
   static YiQiKanSocket _yiQiKanSocket;
-
   //消息回调
   static var _roomListInfo;
   static var _join;
@@ -87,8 +86,6 @@ class YiQiKanSocket {
 
   static onError(message) {
     print("onErrorSokcet");
-    BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/${UserState.username}",
-        trustAllHost: true);
   }
 
   static YiQiKanSocket getYiQiKanSocket() {

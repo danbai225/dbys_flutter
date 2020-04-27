@@ -6,10 +6,10 @@ import 'package:dbys/Page/LoginPage.dart';
 import 'package:dbys/Page/RegPage.dart';
 import 'package:dbys/Page/SearchPage.dart';
 import 'package:dbys/State/UserState.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_page_tracker/flutter_page_tracker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:volume/volume.dart';
 import 'Page/Download/DownloadManagement.dart';
@@ -60,6 +60,8 @@ class _BootAnimation extends State<BootAnimation>
   @override
   initState() {
     super.initState();
+    //持久数据初始化
+    SpUtil.getInstance();
     //更新初始化
     initXUpdate();
     FlutterXUpdate.checkUpdate(
@@ -138,14 +140,12 @@ class _BootAnimation extends State<BootAnimation>
 
   //获取首页数据并存储
   getSyData() async {
-    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    SharedPreferences prefs = await _prefs;
     var response = await http.get("https://dbys.vip/sy");
-    prefs.setString("syData", response.body);
+    SpUtil.putString("syData", response.body);
     //获取公告
     response = await http.get("https://dbys.vip/api/v1/gg");
     var data = await jsonDecode(response.body);
-    prefs.setString("gg", data['data']);
+    SpUtil.putString("gg", data['data']);
   }
 
   ///更新初始化

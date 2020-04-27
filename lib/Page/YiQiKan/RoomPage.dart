@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:dbys/module/CustomControls.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cdnbye/cdnbye.dart';
@@ -11,7 +12,6 @@ import 'package:dbys/Socket/YiQiKanSocket.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
 class RoomPage extends StatefulWidget {
@@ -34,8 +34,8 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
   double time;
   TimerUtil t; //房间定时器
   String username;
-  static VideoPlayerController _videoPlayerController;
-  static ChewieController _chewieController;
+  VideoPlayerController _videoPlayerController;
+  ChewieController _chewieController;
   final tabs = ['聊天', '在线用户', '选择影视', '语音设置'];
   TabController _tabController;
   List chatList = []; //聊天消息列表
@@ -58,42 +58,53 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
     init();
   }
 
+  _initController(String link) {
+    _videoPlayerController = VideoPlayerController.network(link)
+      ..initialize().then((_) {
+        _chewieController = ChewieController(
+            customControls: CustomControls(),
+            allowedScreenSleep: false,
+            videoPlayerController: _videoPlayerController,
+            aspectRatio: _videoPlayerController.value.aspectRatio,
+            autoPlay: true,
+            looping: true);
+        setState(() {});
+      });
+  }
+
   //加载视频
   _loadVideo(String url) async {
-    if (_videoPlayerController != null) {
-      _videoPlayerController.pause();
-    }
+    Fluttertoast.showToast(
+        msg: "视频加载中请稍后",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Theme.of(context).accentColor,
+        textColor: Colors.white,
+        fontSize: 16.0);
     url = await Cdnbye.parseStreamURL(url);
-    _videoPlayerController = VideoPlayerController.network(url);
-    _chewieController = ChewieController(
-      customControls: CustomControls(),
-      allowedScreenSleep: false,
-      videoPlayerController: _videoPlayerController,
-      aspectRatio: 16 / 9,
-      autoPlay: true,
-    );
+    if (_videoPlayerController == null) {
+      // If there was no controller, just create a new one
+      _initController(url);
+    } else {
+      // If there was a controller, we need to dispose of the old one first
+      final oldController = _videoPlayerController;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await oldController.dispose();
+      });
+      // Making sure that controller is not used by setting it to null
+      setState(() {
+        _videoPlayerController = null;
+        _initController(url);
+      });
+    }
     setState(() {});
-    const timeout = const Duration(seconds: 10);
-    Timer(timeout, () {
-      _chewieController = ChewieController(
-        customControls: CustomControls(),
-        allowedScreenSleep: false,
-        videoPlayerController: _videoPlayerController,
-        aspectRatio: _videoPlayerController.value.aspectRatio == 1.0
-            ? 16 / 9
-            : _videoPlayerController.value.aspectRatio,
-        autoPlay: true,
-      );
-      setState(() {});
-    });
   }
 
   init() async {
     //设置webSocket回调
     YiQiKanSocket.setRoomInfoCallBack(roomInfo);
     YiQiKanSocket.setSendChatCallBack(sendChat);
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    username = _prefs.getString("UserNmae");
+    username = SpUtil.getString("UserNmae");
     //定时获取房间信息
     t = new TimerUtil();
     t.setInterval(1000);
@@ -156,10 +167,12 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
     YiQiKanSocket.setSendChatCallBack(null);
     _tabController.dispose();
     t.cancel();
-    _videoPlayerController.dispose();
-    _chewieController.dispose();
-    _videoPlayerController = null;
-    _chewieController = null;
+    if (_videoPlayerController != null) {
+      _videoPlayerController.dispose();
+      _chewieController.dispose();
+      _videoPlayerController = null;
+      _chewieController = null;
+    }
     YiQiKanSocket.send(jsonEncode({"type": "exitRoom"}));
   }
 
@@ -177,11 +190,13 @@ class _RoomState extends State<RoomPage> with SingleTickerProviderStateMixin {
       body: Column(
         children: <Widget>[
           Container(
-            child: _chewieController == null
-                ? null
-                : Chewie(
+            child: _videoPlayerController != null &&
+                    _chewieController != null &&
+                    _videoPlayerController.value.initialized
+                ? Chewie(
                     controller: _chewieController,
-                  ),
+                  )
+                : null,
           ),
           _tabController == null ? null : _buildTabBar(),
           _tabController == null ? null : Expanded(child: _buildTableBarView())

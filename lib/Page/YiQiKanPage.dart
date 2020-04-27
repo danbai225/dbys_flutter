@@ -6,7 +6,6 @@ import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:flutter_page_tracker/flutter_page_tracker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'MainPage.dart';
 
 class YiQiKanPage extends StatefulWidget {

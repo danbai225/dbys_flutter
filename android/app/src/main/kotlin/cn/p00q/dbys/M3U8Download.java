@@ -31,9 +31,16 @@ public class M3U8Download {
     public static List<Download> downloadList=new ArrayList<>();
     private static  MyM3U8DownloadTask downloadTask;
     //1.创建服务器端DatagramSocket，指定端口
-    private static DatagramSocket  socket;
-    public static void init() throws IOException {
-        socket=new DatagramSocket(2252);
+    public static DatagramSocket  socket;
+    public static void init(){
+        try {
+            if(socket!=null){
+                socket.close();
+            }
+            socket = new DatagramSocket(2252);
+        }catch (Exception e) {
+                e.printStackTrace();
+            }
     }
     public static void sendData(String msg){
         byte[] buf = msg.getBytes();

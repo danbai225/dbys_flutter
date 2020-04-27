@@ -55,7 +55,7 @@ class _RegPagePageState extends State<RegPage> {
                     ),
                     // 校验用户名（不能为空）
                     validator: (v) {
-                      return v.length < 4 ? '用户名长度小于3' : null;
+                      return v.length < 3 ? '用户名长度小于3' : RegexUtil.matches("^[\u4e00-\u9fa5_a-zA-Z0-9]+\$",v)?null:"不能有符号";
                     }),
                 TextFormField(
                   controller: _pwdController,
@@ -170,9 +170,7 @@ class _RegPagePageState extends State<RegPage> {
       print(json['message']);
       showDialog(json['message']);
       if (json['message'] == "注册成功") {
-        Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-        SharedPreferences prefs = await _prefs;
-        prefs.setString("LastUsername", _unameController.text);
+        SpUtil.putString("LastUsername", _unameController.text);
         var response = await http.post("https://dbys.vip/api/v1/token", body: {
           'username': _unameController.text,
           'password': _pwdController.text
@@ -181,8 +179,8 @@ class _RegPagePageState extends State<RegPage> {
         if (data['data'] == null) {
         } else {
           //登陆成功
-          prefs.setString("UserNmae", data['data']['username']);
-          prefs.setString("Token", data['data']['token']);
+          SpUtil.putString("UserNmae", data['data']['username']);
+          SpUtil.putString("Token", data['data']['token']);
           UserState.init();
         }
         var duration = new Duration(seconds: 1); //定义一个3秒种的时间

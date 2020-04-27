@@ -20,8 +20,8 @@ class DownloadYsPage extends StatefulWidget {
 }
 
 class _DownloadYsState extends State<DownloadYsPage> {
-  static VideoPlayerController _videoPlayerController;
-  static ChewieController _chewieController;
+  VideoPlayerController _videoPlayerController;
+  ChewieController _chewieController;
   RawDatagramSocket rawDgramSocket;
   String xzPm;
   String xzJi;
@@ -98,47 +98,49 @@ class _DownloadYsState extends State<DownloadYsPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    _videoPlayerController.dispose();
-    _chewieController.dispose();
-    _videoPlayerController = null;
-    _chewieController = null;
+    if (_videoPlayerController != null) {
+      _videoPlayerController.dispose();
+      _chewieController.dispose();
+      _videoPlayerController = null;
+      _chewieController = null;
+    }
   }
 
-  //加载视频
-  _loadVideo(String url) async {
-    //是否有视频有就释放
-    if (_videoPlayerController != null) {
-      _videoPlayerController.pause();
-    }
-    //初始化视频播放
-    _videoPlayerController = VideoPlayerController.network(url);
-    _chewieController = ChewieController(
-      customControls: CustomControls(),
-      allowedScreenSleep: false,
-      videoPlayerController: _videoPlayerController,
-      aspectRatio: 16 / 9,
-      autoPlay: true,
-      looping: true,
-    );
-    setState(() {});
-    const timeout = const Duration(seconds: 1);
-    Timer(timeout, () {
-      //更新长宽比
-      if (_videoPlayerController.value.aspectRatio !=
-          _chewieController.aspectRatio) {
+  void _initController(String link) {
+    _videoPlayerController = VideoPlayerController.network(link)
+      ..initialize().then((_) {
         _chewieController = ChewieController(
           customControls: CustomControls(),
           allowedScreenSleep: false,
           videoPlayerController: _videoPlayerController,
-          aspectRatio: _videoPlayerController.value.aspectRatio == 1.0
-              ? 16 / 9
-              : _videoPlayerController.value.aspectRatio,
+          aspectRatio: _videoPlayerController.value.aspectRatio,
           autoPlay: true,
           looping: true,
         );
         setState(() {});
-      }
-    });
+      });
+  }
+
+  //加载视频
+  _loadVideo(String url) async {
+    if (_videoPlayerController == null) {
+      // If there was no controller, just create a new one
+      _initController(url);
+    } else {
+      // If there was a controller, we need to dispose of the old one first
+      final oldController = _videoPlayerController;
+      // Registering a callback for the end of next frame
+      // to dispose of an old controller
+      // (which won't be used anymore after calling setState)
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await oldController.dispose();
+      });
+      // Making sure that controller is not used by setting it to null
+      setState(() {
+        _videoPlayerController = null;
+        _initController(url);
+      });
+    }
   }
 
   @override
@@ -174,11 +176,13 @@ class _DownloadYsState extends State<DownloadYsPage> {
         body: Column(
           children: <Widget>[
             Container(
-              child: _chewieController == null
-                  ? null
-                  : Chewie(
+              child: _videoPlayerController != null &&
+                      _chewieController != null &&
+                      _videoPlayerController.value.initialized
+                  ? Chewie(
                       controller: _chewieController,
-                    ),
+                    )
+                  : null,
             ),
             xzPm != null
                 ? Container(
