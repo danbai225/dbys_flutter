@@ -29,7 +29,9 @@ class _HomePageState extends State<HomePage>
   List zyList = [];
   List dmList = [];
   String gg = "";
-
+  TextEditingController bugTextController = TextEditingController();
+  TextEditingController qiuPianTextController = TextEditingController();
+  bool autoPlayerNext=SpUtil.getBool("AoutPlayerNext");
   @override
   void initState() {
     super.initState();
@@ -99,6 +101,17 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           Text("公告:$gg"),
+          ListTile(
+            leading: Switch(
+              value: autoPlayerNext,
+              onChanged: (v)=>{
+                autoPlayerNext=!autoPlayerNext,
+                SpUtil.putBool("AoutPlayerNext", autoPlayerNext),
+                setState(() {})
+              },
+            ),
+            title: Text("自动播放下一集"),
+          ),
           ListTile(
             leading: Icon(Icons.bug_report),
             title: MaterialButton(
@@ -309,8 +322,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  TextEditingController bugTextController = TextEditingController();
-  TextEditingController qiuPianTextController = TextEditingController();
+
 
   showFeedbackDialog(int type) {
     YYDialog().build(context)
@@ -379,7 +391,7 @@ class _HomePageState extends State<HomePage>
   AboutDialog _buildAboutDialog() {
     return AboutDialog(
       applicationIcon: FlutterLogo(),
-      applicationVersion: 'v1.0.4',
+      applicationVersion: 'v1.0.5',
       applicationName: '淡白影视',
       applicationLegalese: 'Copyright© 2020 淡白',
       children: <Widget>[

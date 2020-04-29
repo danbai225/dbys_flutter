@@ -31,7 +31,7 @@ class _DownloadYsState extends State<DownloadYsPage> {
   List yss = [];
   bool delete = false;
   String palyerUrl;
-
+  String sDCardDir;
   @override
   void initState() {
     super.initState();
@@ -41,7 +41,6 @@ class _DownloadYsState extends State<DownloadYsPage> {
 
   addYS() async {
     yss = [];
-    String sDCardDir = (await getExternalStorageDirectory()).path;
     List<FileSystemEntity> files = [];
     Directory directory = Directory(sDCardDir + "/下载");
     if (await (directory.exists())) {
@@ -67,6 +66,7 @@ class _DownloadYsState extends State<DownloadYsPage> {
 
   init() async {
     addYS();
+    sDCardDir = (await getExternalStorageDirectory()).path;
     rawDgramSocket = await RawDatagramSocket.bind('127.0.0.1', 2256);
     //监听套接字事件
     await for (RawSocketEvent event in rawDgramSocket) {
@@ -240,7 +240,7 @@ class _DownloadYsState extends State<DownloadYsPage> {
                         ))
                     .toList(),
               ),
-            )
+            ),sDCardDir!=null?Text("存储位置:"+sDCardDir + "/下载"):Text("")
           ],
         ));
   }

@@ -131,7 +131,7 @@ class _RegPagePageState extends State<RegPage> {
                   keyboardType: TextInputType.number,
                   controller: _verificationController,
                   decoration: InputDecoration(
-                      labelText: '邮箱验证码(可能存在于垃圾邮件中)',
+                      labelText: '邮箱验证码',
                       hintText: '请输入邮箱验证码',
                       prefixIcon: Icon(Icons.verified_user)),
                   //校验密码（不能为空）

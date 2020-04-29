@@ -62,7 +62,7 @@ class YiQiKanSocket {
 
   static conn() {
     if(UserState.ifLogin&&onConn==false) {
-      BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/${UserState.username}",
+      BetterSocket.connentSocket(Uri.encodeFull("wss://dbys.vip/wss/cinema/socket/${UserState.username}"),
           trustAllHost: true);
       BetterSocket.addListener(
           onOpen: (httpStatus, httpStatusMessage) {
@@ -78,7 +78,7 @@ class YiQiKanSocket {
 
   static onClose(code, reason, remote) {
     if(code!=1000){
-      BetterSocket.connentSocket("wss://dbys.vip/wss/cinema/socket/${UserState.username}",
+      BetterSocket.connentSocket(Uri.encodeFull("wss://dbys.vip/wss/cinema/socket/${UserState.username}"),
           trustAllHost: true);
     }
     print("onClose---code:$code  reason:$reason  remote:$remote");

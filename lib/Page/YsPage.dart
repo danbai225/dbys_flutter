@@ -113,6 +113,19 @@ class _YsPageState extends State<YsPage> {
             "token": token
           });
         }
+        if(SpUtil.getBool("AoutPlayerNext")&&(_videoPlayerController.value.position.inSeconds+4)>_videoPlayerController.value.duration.inSeconds){
+          if(playList.length>1){
+            for(int i=0;i<playList.length;i++){
+              if(playList[i]['name']==pNAME){
+                if(i!=playList.length-1){
+                  pNAME=playList[i+1]['name'];
+                  _loadVideo(playList[i+1]['url']);
+                  break;
+                }
+              }
+            }
+          }
+        }
       }
     });
     postTimer.startTimer();
