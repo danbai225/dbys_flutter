@@ -102,6 +102,14 @@ public class MyM3U8DownloadTask{
         }
     };
 
+    public String getTempDir() {
+        return tempDir;
+    }
+
+    public void setTempDir(String tempDir) {
+        this.tempDir = tempDir;
+    }
+
     /**
      * 设置最大线程数
      *

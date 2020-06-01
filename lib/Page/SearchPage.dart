@@ -45,11 +45,13 @@ class _SearchPageState extends State<SearchPage> {
         .get("https://dbys.vip/api/v1/ys/search/" + textController.text);
     var data = await jsonDecode(response.body);
     ySList = data['data'];
-    tip = '找到关于"' +
-        textController.text +
-        '"的影视一共' +
-        ySList.length.toString() +
-        '部';
+    if(ySList!=null){
+      tip = '找到关于"' +
+          textController.text +
+          '"的影视一共' +
+          ySList.length.toString() +
+          '部';
+    }
     setState(() {});
   }
 

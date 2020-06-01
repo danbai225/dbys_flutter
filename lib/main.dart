@@ -56,7 +56,6 @@ class _BootAnimation extends State<BootAnimation>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Color xzColor = Colors.black;
-
   @override
   initState() {
     super.initState();

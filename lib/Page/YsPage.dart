@@ -13,7 +13,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
-
 import 'Download/DownloadManagement.dart';
 
 class YsPage extends StatefulWidget {
@@ -39,7 +38,7 @@ class _YsPageState extends State<YsPage> {
   Duration startTime;
   YYDialog jiDialog;
   List downloadList = [];
-
+  bool nextJi=false;
   //与原生交互的通道
   static const platform = const MethodChannel('cn.p00q.dbys/tp');
 
@@ -113,11 +112,18 @@ class _YsPageState extends State<YsPage> {
             "token": token
           });
         }
-        if(SpUtil.getBool("AoutPlayerNext")&&(_videoPlayerController.value.position.inSeconds+4)>_videoPlayerController.value.duration.inSeconds){
+        if(SpUtil.getBool("AoutPlayerNext")&&(_videoPlayerController.value.position.inSeconds+7)>_videoPlayerController.value.duration.inSeconds){
+          if(_chewieController.isFullScreen){
+            _chewieController.toggleFullScreen();
+            nextJi=true;
+          }
+        }
+        if(SpUtil.getBool("AoutPlayerNext")&&(_videoPlayerController.value.position.inSeconds+3)>_videoPlayerController.value.duration.inSeconds){
           if(playList.length>1){
             for(int i=0;i<playList.length;i++){
               if(playList[i]['name']==pNAME){
                 if(i!=playList.length-1){
+                  startTime = null;
                   pNAME=playList[i+1]['name'];
                   _loadVideo(playList[i+1]['url']);
                   break;
@@ -144,11 +150,15 @@ class _YsPageState extends State<YsPage> {
             looping: true,
             startAt: startTime);
         setState(() {});
+        const timeout = const Duration(seconds: 1);
+        Timer(timeout, () {
+          full();
+        });
       });
   }
 
   getStartTime() async {
-    if (username != null && startTime == null) {
+    if (username != "" && startTime == null) {
       var response = await http.post("https://dbys.vip/ys/gettime", body: {
         "ysid": widget.id.toString(),
         "username": username,
@@ -166,10 +176,20 @@ class _YsPageState extends State<YsPage> {
             looping: true,
             startAt: startTime);
         setState(() {});
+        const timeout = const Duration(seconds: 1);
+        Timer(timeout, () {
+          full();
+        });
       }
     }
   }
-
+  full(){
+    if (!_chewieController.isFullScreen&&nextJi) {
+      //下一集后全屏
+      _chewieController.enterFullScreen();
+      nextJi=false;
+    }
+  }
   //加载视频
   _loadVideo(String url) async {
     getStartTime();
@@ -185,6 +205,7 @@ class _YsPageState extends State<YsPage> {
       // If there was no controller, just create a new one
       _initController(url);
     } else {
+
       // If there was a controller, we need to dispose of the old one first
       final oldController = _videoPlayerController;
       WidgetsBinding.instance.addPostFrameCallback((_) async {

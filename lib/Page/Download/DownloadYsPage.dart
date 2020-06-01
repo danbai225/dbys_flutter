@@ -40,6 +40,7 @@ class _DownloadYsState extends State<DownloadYsPage> {
   }
 
   addYS() async {
+    sDCardDir = (await getExternalStorageDirectory()).path;
     yss = [];
     List<FileSystemEntity> files = [];
     Directory directory = Directory(sDCardDir + "/下载");
@@ -66,7 +67,6 @@ class _DownloadYsState extends State<DownloadYsPage> {
 
   init() async {
     addYS();
-    sDCardDir = (await getExternalStorageDirectory()).path;
     rawDgramSocket = await RawDatagramSocket.bind('127.0.0.1', 2256);
     //监听套接字事件
     await for (RawSocketEvent event in rawDgramSocket) {

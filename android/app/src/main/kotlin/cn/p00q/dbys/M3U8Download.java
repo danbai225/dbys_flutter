@@ -90,6 +90,7 @@ public class M3U8Download {
             MyM3U8DownloadTask.curTs=0;
             downloadTask.setThreadCount(10);
             downloadTask.setSaveFilePath(SaveFilePath+"/下载/"+d.getPm()+"/"+d.getJiName()+".mp4");
+            downloadTask.setTempDir(SaveFilePath+"/下载temp");
             downloadTask.download(d.getUrl(), new OnDownloadListener() {
                 private long lastLength = 0;
                 @Override

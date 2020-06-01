@@ -317,6 +317,13 @@ class _HomePageState extends State<HomePage>
                             zt: ys['zt'],
                           )))
                       .toList())),
+          Text("免责声明",style: TextStyle(
+            fontSize: 14,
+          )),
+          Text('本应用所有内容都是靠程序在互联网上自动搜集而来,仅供测试和学习交流。',textAlign: TextAlign.center,),
+          Text('目前正在逐步删除和规避程序自动搜索采集到的不提供分享的版权影视。',textAlign: TextAlign.center,),
+          Text('若侵犯了您的权益，请即时发邮件通知站长 万分感谢！',textAlign: TextAlign.center,),
+          Text('db225@qq.com ♥ 淡白影视 ',textAlign: TextAlign.center,)
         ],
       )),
     );
@@ -391,7 +398,7 @@ class _HomePageState extends State<HomePage>
   AboutDialog _buildAboutDialog() {
     return AboutDialog(
       applicationIcon: FlutterLogo(),
-      applicationVersion: 'v1.0.5',
+      applicationVersion: 'v1.0.6',
       applicationName: '淡白影视',
       applicationLegalese: 'Copyright© 2020 淡白',
       children: <Widget>[

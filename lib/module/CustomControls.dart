@@ -59,6 +59,7 @@ class _MaterialControlsState extends State<CustomControls> {
     }
     return Stack(
       children: <Widget>[
+        Align( alignment: FractionalOffset.topLeft,child: Image.asset("assets/img/logo.png",width: 50,)),
         Align( alignment: FractionalOffset.topCenter,child: spkTime!=0?Text("快进:$spkTime秒",style: TextStyle(fontSize: 20,color: Colors.blue),):null),
         MouseRegion(
           onHover: (_) {
