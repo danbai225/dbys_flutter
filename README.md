@@ -4,7 +4,7 @@
 
 # 淡白影视安卓端
 
-![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.0.5-blue)
+![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.0.7-blue)
 
 [下载地址](http://cdn.p00q.cn/ys/app/淡白影视Flutter.apk)
 
