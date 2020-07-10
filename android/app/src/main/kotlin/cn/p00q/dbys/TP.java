@@ -19,6 +19,7 @@ public class TP {
     private static List<ClingDevice> clingDevices;
     private static RemoteItem remoteItem;
     public static void ini(){
+        Log.d("投屏", "初始化");
         clingDevices=new ArrayList<ClingDevice>();
         ClingManager.getInstance().startClingService();
         clingDevices = DeviceManager.getInstance().getClingDeviceList();
@@ -30,6 +31,7 @@ public class TP {
                 list.add(getDname(clingDevices.get(i)));
             }
         }
+        Log.d("投屏", "有设备："+list.size());
         return list;
     }
     public static void tp(Object data){

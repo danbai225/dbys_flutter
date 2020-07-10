@@ -4,6 +4,7 @@ import 'package:chewie/src/chewie_player.dart';
 import 'package:chewie/src/chewie_progress_colors.dart';
 import 'package:chewie/src/material_progress_bar.dart';
 import 'package:chewie/src/utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_light_plugin/flutter_light_plugin.dart';
 import 'package:video_player/video_player.dart';
@@ -33,6 +34,7 @@ class _MaterialControlsState extends State<CustomControls> {
 
   VideoPlayerController controller;
   ChewieController chewieController;
+  DateTime now;
   double beginY;
   int beginV;
   int maxV;
@@ -40,7 +42,8 @@ class _MaterialControlsState extends State<CustomControls> {
   double beginLight;
   int beginTime;
   double beginX;
-  int spkTime=0;
+  int spkTime = 0;
+
   @override
   Widget build(BuildContext context) {
     if (_latestValue.hasError) {
@@ -59,15 +62,26 @@ class _MaterialControlsState extends State<CustomControls> {
     }
     return Stack(
       children: <Widget>[
-        Align( alignment: FractionalOffset.topLeft,child: Image.asset("assets/img/logo.png",width: 50,)),
-        Align( alignment: FractionalOffset.topCenter,child: spkTime!=0?Text("快进:$spkTime秒",style: TextStyle(fontSize: 20,color: Colors.blue),):null),
+        Align(
+            alignment: FractionalOffset.topLeft,
+            child: Image.asset(
+              "assets/img/logo.png",
+              width: 50,
+            )),
+        Align(
+            alignment: FractionalOffset.topCenter,
+            child: spkTime != 0
+                ? Text(
+                    "快进:$spkTime秒",
+                    style: TextStyle(fontSize: 20, color: Colors.blue),
+                  )
+                : null),
         MouseRegion(
           onHover: (_) {
             _cancelAndRestartTimer();
           },
           child: GestureDetector(
             onVerticalDragUpdate: (details) {
-              print(details.globalPosition.direction);
               //调音量
               if (details.globalPosition.dx <
                   (MediaQuery.of(context).size.width / 2)) {
@@ -77,38 +91,52 @@ class _MaterialControlsState extends State<CustomControls> {
                     showVolumeUI: ShowVolumeUI.SHOW);
               } else {
                 //亮度
-                double l =
-                    beginLight - ((details.globalPosition.dy - beginY) * 5);
-                if (l >= 0 && l <= maxLight) {
-                  FlutterLightPlugin.setLight(l);
+                beginLight =
+                    beginLight - ((details.globalPosition.dy - beginY) * 0.1);
+                if (DateTime.now().difference(now).inMilliseconds > 500) {
+                  setLight();
                 }
               }
             },
             onVerticalDragDown: (e) async {
+              now = new DateTime.now();
               beginY = e.globalPosition.dy;
               beginV = await Volume.getVol;
               maxV = await Volume.getMaxVol;
-              maxLight = await FlutterLightPlugin.getMaxLight;
-              beginLight = await FlutterLightPlugin.getCurrentLight;
             },
             onHorizontalDragUpdate: (e) {
               //进度
-              print((e.globalPosition.dx-beginX)*0.1);
-              spkTime=((e.globalPosition.dx-beginX)*0.1).toInt();
-              setState(() {
-              });
+              spkTime = ((e.globalPosition.dx - beginX) * 0.1).toInt();
+              setState(() {});
             },
             onHorizontalDragEnd: (e) {
-              controller.seekTo(Duration(seconds: beginTime+spkTime));
-              spkTime=0;
-              if(!_latestValue.isPlaying){
+              controller.seekTo(Duration(seconds: beginTime + spkTime));
+              spkTime = 0;
+              if (!_latestValue.isPlaying) {
                 _playPause();
               }
             },
+            onVerticalDragEnd: (e) {
+              if (DateTime.now().difference(now).inMilliseconds < 500) {
+                print(beginLight);
+                print("时间：" +
+                    DateTime.now().difference(now).inMilliseconds.toString());
+                if (e.primaryVelocity > 0) {
+                  beginLight -= 10;
+                  print("亮度-10：" + beginLight.toString());
+                  setLight();
+                }
+                if (e.primaryVelocity < 0) {
+                  beginLight += 10;
+                  print("亮度+10：" + beginLight.toString());
+                  setLight();
+                }
+              }
+            },
             onHorizontalDragDown: (e) async {
-              var d= await controller.position;
-              beginTime=d.inSeconds;
-              beginX=e.globalPosition.dx;
+              var d = await controller.position;
+              beginTime = d.inSeconds;
+              beginX = e.globalPosition.dx;
             },
             onTap: () => _cancelAndRestartTimer(),
             child: AbsorbPointer(
@@ -133,6 +161,16 @@ class _MaterialControlsState extends State<CustomControls> {
         )
       ],
     );
+  }
+
+  setLight() {
+    if (beginLight < 0) {
+      beginLight = 0;
+    }
+    if (beginLight > maxLight) {
+      beginLight = maxLight;
+    }
+    FlutterLightPlugin.setLight(beginLight);
   }
 
   @override
@@ -166,7 +204,7 @@ class _MaterialControlsState extends State<CustomControls> {
     BuildContext context,
   ) {
     final iconColor = Theme.of(context).textTheme.button.color;
-
+    List strSpeed = ["1.0","1.25","1.5","1.75","2.0","2.5","0.7","0.5"];
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
       duration: Duration(milliseconds: 300),
@@ -180,6 +218,17 @@ class _MaterialControlsState extends State<CustomControls> {
                 ? Expanded(child: const Text('LIVE'))
                 : _buildPosition(iconColor),
             chewieController.isLive ? const SizedBox() : _buildProgressBar(),
+            chewieController.isLive?Container():Container(child: CupertinoPicker(
+            itemExtent: 20,
+            onSelectedItemChanged: (value) {
+              setState(() {
+                controller.setSpeed(double.parse(strSpeed[value]));
+              });
+            },
+            children: strSpeed.map((data) {
+              return Text(data.toString(),style: TextStyle(fontSize: 13),);
+            }).toList(),
+          ),width: 30,height: 40,),
             chewieController.allowMuting
                 ? _buildMuteButton(controller)
                 : Container(),
@@ -349,6 +398,8 @@ class _MaterialControlsState extends State<CustomControls> {
   }
 
   Future<Null> _initialize() async {
+    beginLight = await FlutterLightPlugin.getCurrentLight;
+    maxLight = await FlutterLightPlugin.getMaxLight;
     controller.addListener(_updateState);
 
     _updateState();

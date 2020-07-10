@@ -398,7 +398,7 @@ class _HomePageState extends State<HomePage>
   AboutDialog _buildAboutDialog() {
     return AboutDialog(
       applicationIcon: FlutterLogo(),
-      applicationVersion: 'v1.0.7',
+      applicationVersion: 'v1.1.0',
       applicationName: '淡白影视',
       applicationLegalese: 'Copyright© 2020 淡白',
       children: <Widget>[

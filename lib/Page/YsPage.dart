@@ -43,6 +43,7 @@ class _YsPageState extends State<YsPage> {
   static const platform = const MethodChannel('cn.p00q.dbys/tp');
 
   getList() async {
+    print("获取列表");
     try {
       tvs = await platform.invokeMethod('getList');
     } on PlatformException catch (e) {
@@ -387,6 +388,16 @@ class _YsPageState extends State<YsPage> {
                                 }
                               }
                             }
+                          },
+                        ),MaterialButton(
+                          elevation: 5,
+                          color: Theme.of(context).accentColor,
+                          textColor: Colors.white,
+                          child: Text("刷新设备"),
+                          onPressed: () {
+                            tvs=[];
+                            getList();
+                            setState(() {});
                           },
                         )
                       ],

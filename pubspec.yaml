@@ -11,7 +11,7 @@ description: 淡白影视的flutter实现
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.7+8
+version: 1.1.0+9
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -25,8 +25,13 @@ dependencies:
   shared_preferences: ^0.5.6+3
   http: ^0.12.0+4
   cdnbye: ^0.7.0
-  chewie: ^0.9.10
-  video_player: ^0.10.9+1
+  chewie:
+    git:
+      url: https://github.com/danbai225/chewie.git
+  video_player:
+    git:
+      url: https://github.com/danbai225/plugins.git
+      path: packages/video_player/video_player
   flutter_custom_dialog: ^1.0.19
   flustars: ^0.3.2
   flutter_page_tracker: ^2.1.7
