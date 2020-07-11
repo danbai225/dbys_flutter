@@ -6,7 +6,7 @@
 
 ![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.1.0-blue)
 
-[下载地址](https://danbai-cloud.oss-cn-chengdu.aliyuncs.com/uploads%2F2020%2F07%2F10%2F%E6%B7%A1%E7%99%BD%E5%BD%B1%E8%A7%86Flutter.apk?Expires=1594395512)
+[下载地址](https://danbai-cloud.oss-cn-chengdu.aliyuncs.com/uploads%2F2020%2F07%2F10%2Fdbys-1.1.0.apk?Expires=1594396152)
 
 ## 功能特性
 

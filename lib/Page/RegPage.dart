@@ -115,9 +115,11 @@ class _RegPagePageState extends State<RegPage> {
                               color: Theme.of(context).primaryColor,
                               child: Text("获取验证码"),
                               onPressed: () {
+                                print(RegexUtil.isEmail(_emailController.text));
                                 if (RegexUtil.isEmail(_emailController.text) &
-                                    (_unameController.text.length > 3) &
+                                    (_unameController.text.length >= 3) &
                                     !isv) {
+                                  print('ok');
                                   getYzm();
                                 }
                               },
