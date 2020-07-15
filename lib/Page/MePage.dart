@@ -113,6 +113,7 @@ class _MeState extends State<MePage> with PageTrackerAware, TrackerPageMixin {
                 ),
               )),
           Text("观看历史"),
+          Divider(height:10.0,indent:0.0,color: Colors.blue,),
           Expanded(
             child: UserState.ifLogin
                 ? Card(
@@ -193,7 +194,7 @@ class _MeState extends State<MePage> with PageTrackerAware, TrackerPageMixin {
                                                     textAlign: TextAlign.left,
                                                     maxLines: 2))
                                           ],
-                                        )
+                                        ),
                                       ],
                                     ))))
                             .toList()),

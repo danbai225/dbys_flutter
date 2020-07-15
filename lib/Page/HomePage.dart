@@ -222,12 +222,14 @@ class _HomePageState extends State<HomePage>
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[
+          Card(child: Text("公告:$gg"),),
           Text("推荐影视",
               style: TextStyle(
                 fontSize: 18,
+                color: Colors.green
               )),
           Container(
-              height: 180,
+              height: 160,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -246,7 +248,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 180,
+              height: 160,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -265,7 +267,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 180,
+              height: 160,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -284,7 +286,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 180,
+              height: 160,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -303,7 +305,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 180,
+              height: 160,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -398,7 +400,7 @@ class _HomePageState extends State<HomePage>
   AboutDialog _buildAboutDialog() {
     return AboutDialog(
       applicationIcon: FlutterLogo(),
-      applicationVersion: 'v1.1.0',
+      applicationVersion: 'v1.1.1',
       applicationName: '淡白影视',
       applicationLegalese: 'Copyright© 2020 淡白',
       children: <Widget>[

@@ -62,7 +62,7 @@ class YiQiKanSocket {
 
   static conn() {
     if(UserState.ifLogin&&onConn==false) {
-      BetterSocket.connentSocket(Uri.encodeFull("wss://dbys.vip/wss/cinema/socket/${UserState.username}"),
+      BetterSocket.connentSocket(Uri.encodeFull("ws://dbys.vip/cinema/socket/${UserState.username}"),
           trustAllHost: true);
       BetterSocket.addListener(
           onOpen: (httpStatus, httpStatusMessage) {

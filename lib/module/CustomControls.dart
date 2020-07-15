@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:chewie/src/chewie_player.dart';
 import 'package:chewie/src/chewie_progress_colors.dart';
@@ -63,10 +64,17 @@ class _MaterialControlsState extends State<CustomControls> {
     return Stack(
       children: <Widget>[
         Align(
-            alignment: FractionalOffset.topLeft,
-            child: Image.asset(
-              "assets/img/logo.png",
-              width: 50,
+            //防止logo一只在一个位置烧屏
+            alignment: DateTime.now().minute > 30
+                ? FractionalOffset.topLeft
+                : FractionalOffset.bottomRight,
+            child: Transform(
+              alignment: Alignment.center,
+              child: Image.asset(
+                "assets/img/logo.png",
+                width: chewieController.isFullScreen ? 50 : 30,
+              ),
+              transform: Matrix4.rotationZ(DateTime.now().second / 60 * pi * 2),
             )),
         Align(
             alignment: FractionalOffset.topCenter,
@@ -204,7 +212,7 @@ class _MaterialControlsState extends State<CustomControls> {
     BuildContext context,
   ) {
     final iconColor = Theme.of(context).textTheme.button.color;
-    List strSpeed = ["1.0","1.25","1.5","1.75","2.0","2.5","0.7","0.5"];
+    List strSpeed = ["1.0", "1.25", "1.5", "1.75", "2.0", "2.5", "0.7", "0.5"];
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
       duration: Duration(milliseconds: 300),
@@ -218,17 +226,26 @@ class _MaterialControlsState extends State<CustomControls> {
                 ? Expanded(child: const Text('LIVE'))
                 : _buildPosition(iconColor),
             chewieController.isLive ? const SizedBox() : _buildProgressBar(),
-            chewieController.isLive?Container():Container(child: CupertinoPicker(
-            itemExtent: 20,
-            onSelectedItemChanged: (value) {
-              setState(() {
-                controller.setSpeed(double.parse(strSpeed[value]));
-              });
-            },
-            children: strSpeed.map((data) {
-              return Text(data.toString(),style: TextStyle(fontSize: 13),);
-            }).toList(),
-          ),width: 30,height: 40,),
+            chewieController.isLive
+                ? Container()
+                : Container(
+                    child: CupertinoPicker(
+                      itemExtent: 20,
+                      onSelectedItemChanged: (value) {
+                        setState(() {
+                          controller.setSpeed(double.parse(strSpeed[value]));
+                        });
+                      },
+                      children: strSpeed.map((data) {
+                        return Text(
+                          data.toString(),
+                          style: TextStyle(fontSize: 13),
+                        );
+                      }).toList(),
+                    ),
+                    width: 30,
+                    height: 40,
+                  ),
             chewieController.allowMuting
                 ? _buildMuteButton(controller)
                 : Container(),
