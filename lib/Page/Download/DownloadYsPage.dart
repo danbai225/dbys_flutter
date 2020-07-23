@@ -61,6 +61,8 @@ class _DownloadYsState extends State<DownloadYsPage> {
             });
           }
         });
+        jis.sort((a, b) => a["name"].compareTo(b["name"]));
+        jis.sort((left,right)=>0);
         if(jis.length>0){
           yss.add({"pm": pm, "jis": jis});
         }
@@ -68,7 +70,9 @@ class _DownloadYsState extends State<DownloadYsPage> {
       setState(() {});
     }
   }
-
+  bool equalsIgnoreCase(String string1, String string2) {
+    return string1?.toLowerCase() == string2?.toLowerCase();
+  }
   init() async {
     addYS();
     rawDgramSocket = await RawDatagramSocket.bind('127.0.0.1', 2256);

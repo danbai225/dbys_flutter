@@ -386,7 +386,7 @@ class _HomePageState extends State<HomePage>
             content=qiuPianTextController.text;
             qiuPianTextController.clear();
           }
-          if (bugTextController.text != "") {
+          if (content != "") {
             http.post("https://dbys.vip/api/v1/feedback", body: {
               "type": type.toString(),
               "content": content
