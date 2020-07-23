@@ -52,14 +52,18 @@ class _DownloadYsState extends State<DownloadYsPage> {
         List<FileSystemEntity> jisFiles = ys.listSync();
         List jis = [];
         jisFiles.forEach((y) {
-          //添加集
-          jis.add({
-            "name": y.path
-                .substring(y.path.lastIndexOf('/') + 1, y.path.length - 4),
-            "path": y.path
-          });
+          if(y.path.indexOf(".xy")<0){
+            //添加集
+            jis.add({
+              "name": y.path
+                  .substring(y.path.lastIndexOf('/') + 1, y.path.length - 4),
+              "path": y.path
+            });
+          }
         });
-        yss.add({"pm": pm, "jis": jis});
+        if(jis.length>0){
+          yss.add({"pm": pm, "jis": jis});
+        }
       });
       setState(() {});
     }
@@ -77,7 +81,7 @@ class _DownloadYsState extends State<DownloadYsPage> {
           switch (data['type']) {
             case "onDownloading":
               xzPm = data['pm'];
-              xzJinDu = (data['schedule'] * 100).toInt().toString() + "%";
+              xzJinDu = (data['schedule']).toInt().toString() + "%";
               xzJi = data['JiName'];
               break;
             case "onProgress":

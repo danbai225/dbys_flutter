@@ -229,7 +229,7 @@ class _HomePageState extends State<HomePage>
                 color: Colors.green
               )),
           Container(
-              height: 160,
+              height: 170,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -248,7 +248,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 160,
+              height: 170,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -267,7 +267,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 160,
+              height: 170,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -286,7 +286,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 160,
+              height: 170,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage>
                 fontSize: 18,
               )),
           Container(
-              height: 160,
+              height: 170,
               child: ListView(
                   // This next line does the trick.
                   scrollDirection: Axis.horizontal,
@@ -378,10 +378,18 @@ class _HomePageState extends State<HomePage>
         fontSize2: 14.0,
         fontWeight2: FontWeight.bold,
         onTap2: () {
+          String content;
+          if(type==1){
+            content=bugTextController.text;
+            bugTextController.clear();
+          }else{
+            content=qiuPianTextController.text;
+            qiuPianTextController.clear();
+          }
           if (bugTextController.text != "") {
             http.post("https://dbys.vip/api/v1/feedback", body: {
               "type": type.toString(),
-              "content": bugTextController.text
+              "content": content
             });
             Fluttertoast.showToast(
                 msg: "已提交",
@@ -390,7 +398,6 @@ class _HomePageState extends State<HomePage>
                 backgroundColor: Theme.of(context).accentColor,
                 textColor: Colors.white,
                 fontSize: 16.0);
-            bugTextController.clear();
           }
         },
       )
@@ -400,7 +407,7 @@ class _HomePageState extends State<HomePage>
   AboutDialog _buildAboutDialog() {
     return AboutDialog(
       applicationIcon: FlutterLogo(),
-      applicationVersion: 'v1.1.1',
+      applicationVersion: 'v1.1.2',
       applicationName: '淡白影视',
       applicationLegalese: 'Copyright© 2020 淡白',
       children: <Widget>[

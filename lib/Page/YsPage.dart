@@ -367,8 +367,7 @@ class _YsPageState extends State<YsPage> {
                                         },
                                       ))
                                   .toList(),
-                            ))),
-                        MaterialButton(
+                            ))),Container(width: 70,child:MaterialButton(
                           elevation: 5,
                           color: Theme.of(context).accentColor,
                           textColor: Colors.white,
@@ -391,24 +390,27 @@ class _YsPageState extends State<YsPage> {
                                       toastLength: Toast.LENGTH_SHORT,
                                       gravity: ToastGravity.CENTER,
                                       backgroundColor:
-                                          Theme.of(context).accentColor,
+                                      Theme.of(context).accentColor,
                                       textColor: Colors.white,
                                       fontSize: 16.0);
                                 }
                               }
                             }
                           },
-                        ),Padding(padding:EdgeInsets.fromLTRB(5, 0, 0, 0),child:MaterialButton(
+                        ) ,)
+                        ,Container(
+                          width: 70,child: Padding(padding:EdgeInsets.fromLTRB(5, 0, 0, 0),child:MaterialButton(
                           elevation: 5,
                           color: Theme.of(context).accentColor,
                           textColor: Colors.white,
-                          child: Text("刷新设备"),
+                          child: Text("刷新"),
                           onPressed: () {
                             tvs=[];
                             getList();
                             setState(() {});
                           },
-                        ))
+                        )),
+                        )
                       ],
                     ),
                     Row(

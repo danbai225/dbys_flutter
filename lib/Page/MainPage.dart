@@ -79,7 +79,7 @@ class _MainPageState extends State<MainPage> {
               fontSize: 16.0);
         } else {
           lastPopTime = DateTime.now();
-          DownloadManagement.cancel();
+          DownloadManagement.removeBind();
           // 退出app
           exit(0);
         }
