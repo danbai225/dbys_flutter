@@ -120,6 +120,14 @@ class _YiQiKanPageState extends State<YiQiKanPage>
                           Navigator.of(this.context)
                               .pushNamed("/RegPage"); //执行跳转代码
                         },
+                      ),
+                      RaisedButton(
+                        elevation: 5,
+                        child: Text("找回密码"),
+                        onPressed: () {
+                          Navigator.of(this.context)
+                              .pushNamed("/RetrievePassPage"); //执行跳转代码
+                        },
                       )
                     ])))
             : SingleChildScrollView(

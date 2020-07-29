@@ -6,7 +6,7 @@
 
 ![](https://img.shields.io/badge/%E7%89%88%E6%9C%AC-1.1.2-blue)
 
-[下载地址](https://netcut.cn/api/file/download/?note_id=a35c9a5e57e7342b&file_id=a35c9a5e57e7342b-1595533229111r3)
+[下载地址](https://netcut.cn/api/file/download/?note_id=a35c9a5e57e7342b&file_id=a35c9a5e57e7342b-1596022754031b2)
 
 ## 功能特性
 

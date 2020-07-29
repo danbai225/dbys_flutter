@@ -16,6 +16,8 @@ import 'Page/Download/DownloadManagement.dart';
 import 'Page/MainPage.dart';
 import 'package:flutter_xupdate/flutter_xupdate.dart';
 
+import 'Page/RetrievePass.dart';
+
 void main() => runApp(TrackerRouteObserverProvider(
       child: MyApp(),
     ));
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/SearchPage': (BuildContext context) => new SearchPage(),
         '/LoginPage': (BuildContext context) => new LoginPage(),
         '/RegPage': (BuildContext context) => new RegPage(),
+        '/RetrievePassPage': (BuildContext context) => new RetrievePassPage(),
       },
     );
   }
