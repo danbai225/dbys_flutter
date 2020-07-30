@@ -1,9 +1,5 @@
 package net.m3u8.download;
 
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
 import net.m3u8.Exception.M3u8Exception;
 import net.m3u8.listener.DownloadListener;
 import net.m3u8.utils.Constant;
@@ -50,7 +46,6 @@ public class M3u8DownloadFactory {
     public static boolean isRun(){
         return run;
     }
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public static class M3u8Download {
 
         //要下载的m3u8链接
@@ -96,7 +91,9 @@ public class M3u8DownloadFactory {
         private Set<String> tsSet = new LinkedHashSet<>();
 
         //解密后的片段
-        private Set<File> finishedFiles = new ConcurrentSkipListSet<>(Comparator.comparingInt(o -> Integer.parseInt(o.getName().replace(".xyz", ""))));
+        private Set<File> finishedFiles = new ConcurrentSkipListSet<File>((f1, f2) -> {
+            return f1.compareTo(f2);
+        });
 
         //已经下载的文件大小
         private BigDecimal downloadBytes = new BigDecimal(0);
@@ -215,7 +212,14 @@ public class M3u8DownloadFactory {
                 else file.createNewFile();
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 byte[] b = new byte[4096];
-                for (File f : finishedFiles) {
+                List<File> list = new ArrayList<>(finishedFiles);
+                Collections.sort(list, new Comparator<File>() {
+                    @Override
+                    public int compare(File o1, File o2) {
+                        return -Integer.parseInt(o2.getName().replace(".xyz",""))+Integer.parseInt(o1.getName().replace(".xyz",""));
+                    }
+                });
+                for (File f : list) {
                     FileInputStream fileInputStream = new FileInputStream(f);
                     int len;
                     while ((len = fileInputStream.read(b)) != -1) {
@@ -229,6 +233,7 @@ public class M3u8DownloadFactory {
                 e.printStackTrace();
             }
         }
+
 
         /**
          * 删除下载好的片段
@@ -338,7 +343,7 @@ public class M3u8DownloadFactory {
                 }
                 if (count > retryCount)
                     //自定义异常
-                    throw new M3u8Exception("连接超时！");
+                    Log.e("下载异常");
                 finishedCount++;
 //                Log.i(urls + "下载完毕！\t已完成" + finishedCount + "个，还剩" + (tsSet.size() - finishedCount) + "个！");
             });
@@ -486,7 +491,7 @@ public class M3u8DownloadFactory {
                 }
             }
             if (count > retryCount)
-                throw new M3u8Exception("连接超时！");
+                Log.e("下载异常");
             return content;
         }
 
@@ -652,7 +657,7 @@ public class M3u8DownloadFactory {
      * @param downloadUrl 要下载的链接
      * @return 返回m3u8下载实例
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     public static M3u8Download getInstance(String downloadUrl) {
         run=true;
         if (m3u8Download == null) {
@@ -667,7 +672,7 @@ public class M3u8DownloadFactory {
     public static void destroied() {
         m3u8Download = null;
     }
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     public static void cancel(){
         m3u8Download.deleteFiles();
         if(m3u8Download!=null){

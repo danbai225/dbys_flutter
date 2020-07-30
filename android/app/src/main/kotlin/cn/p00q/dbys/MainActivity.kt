@@ -1,9 +1,6 @@
 package cn.p00q.dbys
 
-
-import android.os.Build
 import androidx.annotation.NonNull
-import androidx.annotation.RequiresApi
 import com.yanbo.lib_screen.VApplication
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -11,7 +8,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 
 class MainActivity: FlutterActivity() {
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         VApplication.init(this)
         GeneratedPluginRegistrant.registerWith(flutterEngine)

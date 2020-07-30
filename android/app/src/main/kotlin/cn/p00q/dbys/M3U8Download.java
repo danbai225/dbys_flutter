@@ -1,10 +1,6 @@
 package cn.p00q.dbys;
 
-import android.os.Build;
 import android.os.Environment;
-
-import androidx.annotation.RequiresApi;
-
 import net.m3u8.download.M3u8DownloadFactory;
 import net.m3u8.listener.DownloadListener;
 import net.m3u8.utils.Constant;
@@ -58,7 +54,6 @@ public class M3U8Download {
         SaveFilePath = path;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public synchronized static void Add(Object data) {
         JSONObject jObject = null;
         try {
@@ -79,12 +74,10 @@ public class M3U8Download {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public static void cancel() {
         M3u8DownloadFactory.cancel();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public static void Download(Download d) {
 
         M3u8DownloadFactory.M3u8Download m3u8Download = M3u8DownloadFactory.getInstance(d.getUrl());
@@ -151,7 +144,6 @@ public class M3U8Download {
 //开始下载
         m3u8Download.start();
     }
-    @RequiresApi(api = Build.VERSION_CODES.N)
     synchronized private static void  next(){
         System.out.println(downloadList.size());
         if(downloadList.size()>0&& !M3u8DownloadFactory.isRun()){
