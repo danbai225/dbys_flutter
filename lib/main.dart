@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cdnbye/cdnbye.dart';
 import 'package:dbys/Page/LoginPage.dart';
 import 'package:dbys/Page/RegPage.dart';
@@ -74,34 +75,16 @@ class _BootAnimation extends State<BootAnimation>
     //音量修改选择
     Volume.controlVolume(AudioManager.STREAM_MUSIC);
     //P2P初始化
-    Cdnbye.init("_WJjufJZR", config: P2pConfig.byDefault());
+    Cdnbye.init("_WJjufJZR", config: P2pConfig(
+      logLevel: P2pLogLevel.error
+    ));
     //登录初始化
     UserState.init();
     //下载器初始化
     DownloadManagement.init();
-    var duration = new Duration(seconds: 3); //定义一个三秒种的时间
-    new Future.delayed(duration, () {
-      //设置定时执行
-      goToHomePage();
-    });
-    _controller = new AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-    _controller.addListener(() {
-      setState(() {
-        print(_controller.value);
-        if (_controller.value == 1) {
-          xzColor = Colors.grey;
-        }
-      });
-    });
-    _controller.forward();
   }
-
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -109,30 +92,24 @@ class _BootAnimation extends State<BootAnimation>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          decoration: BoxDecoration(color: Colors.black),
-          child: Center(
-              child: Container(
-            width: 200,
-            height: 100,
-            child: Column(
-              children: <Widget>[
-                Opacity(
-                    opacity: _controller.value,
-                    child: Text(
-                      "淡白影视",
-                      style: TextStyle(
-                          fontSize: 36 * _controller.value,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    )),
-                Text(
-                  "看你想看",
-                  style: TextStyle(fontSize: 16, color: xzColor),
-                )
-              ],
-            ),
-          ))),
+      body: Center(
+        child: ColorizeAnimatedTextKit(
+            isRepeatingAnimation:false,
+            onFinished:(){
+              goToHomePage();
+            },
+          text: [
+            "淡白影视",
+            "看你想看",
+          ],
+          textStyle: TextStyle(fontSize: 50.0),
+          colors: [
+            Colors.blue,
+            Colors.yellow,
+            Colors.red,
+          ],
+        ),
+      ),
     );
   }
 

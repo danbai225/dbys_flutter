@@ -86,7 +86,7 @@ public class M3U8Download {
         //设置视频名称
         m3u8Download.setFileName(d.getJiName());
         //设置线程数
-        m3u8Download.setThreadCount(16);
+        m3u8Download.setThreadCount(24);
         //设置重试次数
         m3u8Download.setRetryCount(3);
         //设置连接超时时间（单位：毫秒）

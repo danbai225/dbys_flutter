@@ -15,6 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
 import 'Download/DownloadManagement.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class YsPage extends StatefulWidget {
   YsPage({this.id});
@@ -40,6 +41,7 @@ class _YsPageState extends State<YsPage> {
   YYDialog jiDialog;
   List downloadList = [];
   bool nextJi=false;
+  bool loadOk=false;
   //与原生交互的通道
   static const platform = const MethodChannel('cn.p00q.dbys/tp');
 
@@ -145,6 +147,7 @@ class _YsPageState extends State<YsPage> {
       }
     });
     postTimer.startTimer();
+    loadOk=true;
     setState(() {});
   }
 
@@ -322,7 +325,7 @@ class _YsPageState extends State<YsPage> {
                   },
                 )),
             preferredSize: Size.fromHeight(40)),
-        body: Column(
+        body: loadOk?Column(
           children: <Widget>[
             Container(
               child: _videoPlayerController != null &&
@@ -591,6 +594,14 @@ class _YsPageState extends State<YsPage> {
               ),
             )
           ],
+        ):SpinKitPulse(
+          itemBuilder: (BuildContext context, int index) {
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                color:Colors.grey
+              ),
+            );
+          },
         ));
   }
 

@@ -44,7 +44,7 @@ class _MaterialControlsState extends State<CustomControls> {
   int beginTime;
   double beginX;
   int spkTime = 0;
-
+  double pSpeed=1.0;
   @override
   Widget build(BuildContext context) {
     if (_latestValue.hasError) {
@@ -64,7 +64,7 @@ class _MaterialControlsState extends State<CustomControls> {
     return Stack(
       children: <Widget>[
         Align(
-            //防止logo一只在一个位置烧屏
+            //防止logo一只在一个位置烧屏(玄学)
             alignment: DateTime.now().minute > 30
                 ? FractionalOffset.topLeft
                 : FractionalOffset.bottomRight,
@@ -83,7 +83,15 @@ class _MaterialControlsState extends State<CustomControls> {
                     "快进:$spkTime秒",
                     style: TextStyle(fontSize: 20, color: Colors.blue),
                   )
-                : null),
+                :null),
+        Align(
+            alignment: FractionalOffset.topRight,
+            child: DateTime.now().minute==59
+                ? Text(
+              "现在时间:"+DateTime.now().hour.toString()+":"+DateTime.now().minute.toString()+":"+DateTime.now().second.toString(),
+              style: TextStyle(fontSize: 20, color: Colors.white),
+            )
+                :null),
         MouseRegion(
           onHover: (_) {
             _cancelAndRestartTimer();
@@ -95,20 +103,33 @@ class _MaterialControlsState extends State<CustomControls> {
                   (MediaQuery.of(context).size.width / 2)) {
                 Volume.setVol(
                     (beginV -
-                        ((details.globalPosition.dy - beginY) * 0.1).toInt()),
+                        ((details.globalPosition.dy - beginY) * 0.05).toInt()),
                     showVolumeUI: ShowVolumeUI.SHOW);
               } else {
                 //亮度
-                beginLight =
-                    beginLight - ((details.globalPosition.dy - beginY) * 0.1);
                 if (DateTime.now().difference(now).inMilliseconds > 500) {
+                  beginLight =
+                      beginLight - ((details.globalPosition.dy - beginY) * 0.05);
                   setLight();
                 }
               }
             },
-            onVerticalDragDown: (e) async {
+            //长按倍速播放
+            onLongPress: (){
+              setState(() {
+                controller.setSpeed(2.0);
+              });
+            },
+    onLongPressEnd:(e){
+
+      setState(() {
+        controller.setSpeed(pSpeed);
+      });
+    },
+    onVerticalDragDown: (e) async {
               now = new DateTime.now();
               beginY = e.globalPosition.dy;
+              beginX=e.globalPosition.dx;
               beginV = await Volume.getVol;
               maxV = await Volume.getMaxVol;
             },
@@ -125,20 +146,17 @@ class _MaterialControlsState extends State<CustomControls> {
               }
             },
             onVerticalDragEnd: (e) {
-              if (DateTime.now().difference(now).inMilliseconds < 500) {
+              //简单调节两端 右半屏 上下滑动加减 10%的亮度  时间在0.5s内为简单调节 否则为精度调节
+              if (DateTime.now().difference(now).inMilliseconds < 500&&beginX>(MediaQuery.of(context).size.width / 2)) {
                 print(beginLight);
-                print("时间：" +
-                    DateTime.now().difference(now).inMilliseconds.toString());
                 if (e.primaryVelocity > 0) {
-                  beginLight -= 10;
-                  print("亮度-10：" + beginLight.toString());
-                  setLight();
+                  beginLight -=maxLight*0.1;
                 }
                 if (e.primaryVelocity < 0) {
-                  beginLight += 10;
-                  print("亮度+10：" + beginLight.toString());
-                  setLight();
+                  beginLight += maxLight*0.1;
                 }
+                print(beginLight);
+                setLight();
               }
             },
             onHorizontalDragDown: (e) async {
@@ -212,7 +230,7 @@ class _MaterialControlsState extends State<CustomControls> {
     BuildContext context,
   ) {
     final iconColor = Theme.of(context).textTheme.button.color;
-    List strSpeed = ["1.0", "1.25", "1.5", "1.75", "2.0", "2.5", "0.7", "0.5"];
+    List strSpeed = ["1.0", "1.25", "1.5", "1.75", "2.0", "2.5","0.7", "0.5"];
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
       duration: Duration(milliseconds: 300),
@@ -232,8 +250,9 @@ class _MaterialControlsState extends State<CustomControls> {
                     child: CupertinoPicker(
                       itemExtent: 20,
                       onSelectedItemChanged: (value) {
+                        pSpeed=double.parse(strSpeed[value]);
                         setState(() {
-                          controller.setSpeed(double.parse(strSpeed[value]));
+                          controller.setSpeed(pSpeed);
                         });
                       },
                       children: strSpeed.map((data) {

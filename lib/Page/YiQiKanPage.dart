@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dbys/Page/YiQIkan/RoomPage.dart';
 import 'package:dbys/Socket/YiQiKanSocket.dart';
 import 'package:dbys/State/UserState.dart';
@@ -23,6 +24,7 @@ class _YiQiKanPageState extends State<YiQiKanPage>
   int online = 0;
   List roomList = [];
   final columns = ['房间名', '房间人数', '密码', '加入'];
+  String dUrl;
   TextEditingController _passController = new TextEditingController(); //密码输入
   TextEditingController _nameController = new TextEditingController(); //房间名输入
   @override
@@ -130,37 +132,37 @@ class _YiQiKanPageState extends State<YiQiKanPage>
                         },
                       )
                     ])))
-            : SingleChildScrollView(
-                child: Container(
-                  alignment: Alignment.topCenter,
-                  child: DataTable(
-                    columnSpacing: 0,
-                    columns:
-                        columns.map((e) => DataColumn(label: Text(e))).toList(),
-                    rows: roomList
-                        .map((room) => DataRow(cells: [
-                              DataCell(Text(
-                                '${room['name'].toString().length > 15 ? room['name'].toString().substring(0, 15) : room['name']}',
-                              )),
-                              DataCell(Text('${room['online']}')),
-                              DataCell(room['needPass']
-                                  ? Icon(Icons.lock_outline)
-                                  : Icon(Icons.lock_open)),
-                              DataCell(RaisedButton(
-                                child: Text('加入'),
-                                onPressed: () {
-                                  if (room['needPass']) {
-                                    showInputPass(room['id']);
-                                  } else {
-                                    joinRoom(room['id'], "");
-                                  }
-                                },
-                              ))
-                            ]))
-                        .toList(),
-                  ),
-                ),
-              ),
+            : Column(children: [roomList.length>0?SingleChildScrollView(
+          child: Container(
+            alignment: Alignment.topCenter,
+            child: DataTable(
+              columnSpacing: 0,
+              columns:
+              columns.map((e) => DataColumn(label: Text(e))).toList(),
+              rows: roomList
+                  .map((room) => DataRow(cells: [
+                DataCell(Text(
+                  '${room['name'].toString().length > 15 ? room['name'].toString().substring(0, 15) : room['name']}',
+                )),
+                DataCell(Text('${room['online']}')),
+                DataCell(room['needPass']
+                    ? Icon(Icons.lock_outline)
+                    : Icon(Icons.lock_open)),
+                DataCell(RaisedButton(
+                  child: Text('加入'),
+                  onPressed: () {
+                    if (room['needPass']) {
+                      showInputPass(room['id']);
+                    } else {
+                      joinRoom(room['id'], "");
+                    }
+                  },
+                ))
+              ]))
+                  .toList(),
+            ),
+          ),
+        ):Center(child: Text("没有房间,快去创建房间,一起看!",textScaleFactor: 1.2,),),Container(width: 266,child: Image.asset("assets/img/Derwm.png"),)],),
         floatingActionButton: !UserState.ifLogin
             ? null
             : FloatingActionButton(
